@@ -1,6 +1,6 @@
-# Flyby Robotic Mission Planner
+# Drone Mission Planner
 
-> Tactical 3D Drone Fleet & Mission Planning System inspired by DJI FlightHub 2. Built for the Flyby Robotics Technical Assessment.
+> Tactical 3D Drone Fleet & Mission Planning System inspired by DJI FlightHub 2. 
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB.svg?logo=react&logoColor=black)](https://react.dev)

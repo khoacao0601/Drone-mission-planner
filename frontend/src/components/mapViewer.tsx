@@ -1,8 +1,7 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
 import React from 'react';
-import DeckGL from 'deck.gl';
-import { PathLayer, ScatterplotLayer, LineLayer, PolygonLayer } from 'deck.gl';
+import { PathLayer, ScatterplotLayer, LineLayer, PolygonLayer, DeckGL} from 'deck.gl';
 import Map from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 

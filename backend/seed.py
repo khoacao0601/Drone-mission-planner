@@ -1,5 +1,6 @@
 # Copyright (c) 2026 Khoa Cao. All rights reserved.
 
+import os
 from core.database import Base, SessionLocal, engine
 from core.security import hash_pass
 from models.user import User
@@ -11,10 +12,13 @@ def seed_data():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
+    admin_default = os.getenv("SEED_ADMIN_PASSWORD", "admin123")
+    pilot_default = os.getenv("SEED_PILOT_PASSWORD", "pilot123")
+
     test_users = [
-        {"email": "admin@flyby.com", "password": "admin123", "role": "ADMIN"},
-        {"email": "pilot1@flyby.com", "password": "pilot123", "role": "PILOT"},
-        {"email": "pilot2@flyby.com", "password": "pilot123", "role": "PILOT"},
+        {"email": "admin@flyby.com", "password": admin_default, "role": "ADMIN"},
+        {"email": "pilot1@flyby.com", "password": pilot_default, "role": "PILOT"},
+        {"email": "pilot2@flyby.com", "password": pilot_default, "role": "PILOT"},
     ]
 
     try:

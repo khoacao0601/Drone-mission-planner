@@ -39,7 +39,11 @@ export const missionAPI = {
 
     // Get single one
     getMissionDetail: async (id: number): Promise<Mission> => {
-        const response = await api.get<Mission>(`/missions/${id}`);
+        const safeId = Number(id);
+        if (!Number.isInteger(safeId) || safeId <= 0) {
+            throw new Error('Invalid mission ID');
+        }
+        const response = await api.get<Mission>(`/missions/${encodeURIComponent(safeId)}`);
         return response.data;
     },
 
@@ -51,7 +55,11 @@ export const missionAPI = {
 
     // Delete Mission
     deleteMission: async (id: number): Promise<{ message: string }> => {
-        const response = await api.delete(`/missions/${id}`);
+        const safeId = Number(id);
+        if (!Number.isInteger(safeId) || safeId <= 0) {
+            throw new Error('Invalid mission ID');
+        }
+        const response = await api.delete<{ message: string }>(`/missions/${encodeURIComponent(safeId)}`);
         return response.data;
     },
 };

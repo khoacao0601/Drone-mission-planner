@@ -12,7 +12,7 @@ WORKDIR /app
 
 # 4. Copy requirements and install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --only-binary :all: -r requirements.txt
+RUN pip install --require-hashes -r requirements.txt
 
 # 5. Copy the backend application source code
 COPY main.py seed.py ./

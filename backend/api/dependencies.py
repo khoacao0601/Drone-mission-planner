@@ -1,5 +1,6 @@
-# Copyright (c) 2026 Khoa Cao. All rights reserved.
+# Copyright (c) 2026 Khoa 
 
+from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -14,7 +15,7 @@ from models.user import User
 oauth2 = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
 # Get user infos with Token
-def get_current_user(token: str = Depends(oauth2), db: Session = Depends(get_db)) -> User:
+def get_current_user( token: Annotated[str, Depends(oauth2)], db: Annotated[Session, Depends(get_db)]) -> User:
     try:
         # Decode token by SECRECT_KEY
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
@@ -39,7 +40,7 @@ def get_current_user(token: str = Depends(oauth2), db: Session = Depends(get_db)
     return user
 
 # Check role
-def is_admin(current_user: User = Depends(get_current_user)) -> User:
+def is_admin(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     if current_user.role.upper() != "ADMIN":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

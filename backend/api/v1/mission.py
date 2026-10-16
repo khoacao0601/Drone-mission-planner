@@ -1,7 +1,6 @@
 # Copyright (c) 2026 Khoa Cao. All rights reserved.
 
-
-from typing import List
+from typing import Annotated, List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -18,8 +17,8 @@ router = APIRouter(prefix="/missions", tags=["Missions"])
 
 def create_mission(
     mission: MissionCreate,
-    db: Session = Depends(get_db),
-    isAdmin: User = Depends(is_admin)
+    db: Annotated[Session, Depends(get_db)],
+    isAdmin: Annotated[User, Depends(is_admin)]
 ):
     return mission_service.create_new_mission(db=db, mission=mission, current_user=isAdmin)
 
@@ -28,8 +27,8 @@ def create_mission(
 @router.get("/", response_model=List[MissionResponse])
 
 def get_missions(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)]
 ):
     return mission_service.get_mission_for_user(db=db, current_user=current_user)
 
@@ -38,8 +37,8 @@ def get_missions(
 
 def get_mission_detail(
     mission_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)]
 ):
     return mission_service.get_mission_detail(db=db, mission_id=mission_id, current_user=current_user)
 
@@ -48,6 +47,6 @@ def get_mission_detail(
 
 def delete_mission(
     mission_id: int,
-    db: Session = Depends(get_db)
+    db: Annotated[Session, Depends(get_db)]
 ):
     return mission_service.delete_mission(db=db, mission_id=mission_id)

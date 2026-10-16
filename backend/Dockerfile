@@ -12,13 +12,23 @@ WORKDIR /app
 
 # 4. Copy requirements and install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --only-binary :all: -r requirements.txt
 
 # 5. Copy the backend application source code
-COPY . .
+COPY main.py seed.py ./
+COPY api/ ./api/
+COPY core/ ./core/
+COPY crud/ ./crud/
+COPY models/ ./models/
+COPY schemas/ ./schemas/
+COPY services/ ./services/
 
-# 6. Expose API port
+# 6. Create a non-root user and switch to it for security
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
+USER appuser
+
+# 7. Expose API port
 EXPOSE 8000
 
-# 7. Start FastAPI server using Uvicorn
+# 8. Start FastAPI server using Uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

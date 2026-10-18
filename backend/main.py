@@ -1,5 +1,6 @@
 # Copyright (c) 2026 Khoa Cao. All rights reserved.
 
+from mangum import Mangum
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,3 +28,6 @@ app.include_router(mission_router, prefix="/api/v1")
 @app.get("/")
 def health_check():
     return {"message": "Flyby Drone Mission Planner API is running!"}
+
+# Adapter for AWS Lambda
+handler = Mangum(app)

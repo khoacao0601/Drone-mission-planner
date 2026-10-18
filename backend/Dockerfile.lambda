@@ -1,0 +1,20 @@
+# Copyright (c) 2026 Khoa Cao. All rights reserved.
+
+# 1. Using Base Image of AWS Lambda support Python 3.11
+FROM public.ecr.aws/lambda/python:3.11
+
+# 2. Copy requirements and install to LAMBDA_TASK_ROOT
+COPY requirements.txt ${LAMBDA_TASK_ROOT}/
+RUN pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.txt
+
+# 3. Copy all backend source code
+COPY main.py seed.py ${LAMBDA_TASK_ROOT}/
+COPY api/ ${LAMBDA_TASK_ROOT}/api/
+COPY core/ ${LAMBDA_TASK_ROOT}/core/
+COPY crud/ ${LAMBDA_TASK_ROOT}/crud/
+COPY models/ ${LAMBDA_TASK_ROOT}/models/
+COPY schemas/ ${LAMBDA_TASK_ROOT}/schemas/
+COPY services/ ${LAMBDA_TASK_ROOT}/services/
+
+# 4. Set the CMD to Lambda handler (main.py, handler)
+CMD [ "main.handler" ]

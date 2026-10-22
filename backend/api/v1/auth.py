@@ -24,7 +24,6 @@ def set_refresh_cookie(response: Response, refresh_token: str) -> None:
         value=refresh_token,
         httponly=True,                                          # prevent JavaScript read (avoid XSS)
         samesite="lax",                                         # avoid CSRF
-        secure=False,                                           # True when deploy production HTTPS
         secure=settings.COOKIE_SECURE,                          # use var from config
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600, # 7 days by seconds
         path=REFRESH_COOKIE_PATH,                               # only send this cookie when request to /api/v1/auth

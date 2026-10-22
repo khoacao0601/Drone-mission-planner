@@ -30,6 +30,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
         "https://drone-planner-fly.khoacao.dev",
     ]
+    COOKIE_SECURE: bool = False 
 
     # Configure to path to file .env in root directory
     model_config = SettingsConfigDict(

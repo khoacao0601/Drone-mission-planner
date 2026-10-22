@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from core.security import decode_token
 from core.config import settings
 from core.database import get_db
 from crud.crud_user import get_user_by_email
@@ -18,7 +19,16 @@ oauth2 = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 def get_current_user( token: Annotated[str, Depends(oauth2)], db: Annotated[Session, Depends(get_db)]) -> User:
     try:
         # Decode token by SECRECT_KEY
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = decode_token(token)
+
+        # Make sure this is an access token, not a refresh token
+        token_type: str = payload.get("type", "access")
+        if token_type != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type!"
+            )
+
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(

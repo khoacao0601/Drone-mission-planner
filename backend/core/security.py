@@ -19,15 +19,27 @@ def validation_password(origin_password: str, hashed_password: str) -> bool:
     hashed_bytes = hashed_password.encode("utf-8")
     return bcrypt.checkpw(pwd_bytes, hashed_bytes)
 
-# Create JWT Token
+# Create JWT Token(short: 15 minutes)
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
 
     # Setup expiration for Token
     expiration = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expiration})
+    to_encode.update({"exp": expiration, "type": "access"})
 
     # Encrypt Token by SECRET_KEY
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
     return encoded_jwt
+
+# Create JWT Refresh Token (long-live: 7 days)
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expiration = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expiration, "type": "refresh"})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+# Decode and verify JWT Token
+def decode_token(token: str) -> dict:
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])

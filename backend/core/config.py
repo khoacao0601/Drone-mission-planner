@@ -21,7 +21,15 @@ class Settings(BaseSettings):
     # JWT Authentication Configuration
     SECRET_KEY: str = "flyby-super-secret-key-change-in-production-2026"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # CORS Origins for HttpOnly Cookie support
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://drone-planner-fly.khoacao.dev",
+    ]
 
     # Configure to path to file .env in root directory
     model_config = SettingsConfigDict(

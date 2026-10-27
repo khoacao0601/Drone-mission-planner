@@ -33,7 +33,7 @@ api.interceptors.response.use(
             // Avoid infinite loops if the refresh endpoint itself returns 401
             if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/login')) {
                 useAuthStore.getState().logout();
-                return Promise.reject(error);
+                throw error;
             }
             originalRequest._retry = true;
             try {
@@ -46,10 +46,10 @@ api.interceptors.response.use(
             } catch (refreshError) {
                 // Refresh token also expired or invalid -> log out
                 useAuthStore.getState().logout();
-                return Promise.reject(refreshError);
+                throw refreshError;
             }
         }
-        return Promise.reject(error);
+        throw error;
     }
 );
 

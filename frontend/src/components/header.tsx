@@ -1,62 +1,59 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { authAPI } from '../services/api';
 
 export const Header: React.FC = () => {
-  const { user, login } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
-  // Switch role between Admin and Pilot
-   const switchRole = async (email: string, pass: string) => {
+  // Handle Logout
+  const handleLogout = async () => {
     try {
-      const data = await authAPI.login(email, pass);
-      login(data.access_token, data.user);
+      await authAPI.logout();
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Logout error:', err);
+    } finally {
+      // Clear RAM state in Zustand
+      logout();
     }
   };
 
-  // Auto-login as ADMIN on first load
-  useEffect(() => {
-    if (!user) {
-      switchRole('admin@flyby.com', 'admin123');
-    }
-  }, [user]);
-
   return (
-    <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center border-b border-gray-700">
+    <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center border-b border-gray-700 shadow-md">
       {/* 1. App Title */}
-      <h1 className="text-lg font-bold">Flyby Robotics Mission Planner</h1>
+      <div className="flex items-center gap-2">
+        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+        <h1 className="text-base md:text-lg font-bold tracking-wide">Flyby Robotics Mission Planner</h1>
+      </div>
 
-      {/* 2. User info and Role Switcher */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-300">
-          User: <b>{user?.email || 'Loading...'}</b> ({user?.role || '...'})
-        </span>
+      {/* 2. Active User Profile & Logout */}
+      <div className="flex items-center gap-4">
+        {user && (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-gray-400 hidden sm:inline">Operator:</span>
+            <span className="font-semibold text-white">{user.email}</span>
+            <span
+              className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                user.role === 'ADMIN'
+                  ? 'bg-blue-900/60 text-blue-300 border-blue-500'
+                  : 'bg-emerald-900/60 text-emerald-300 border-emerald-500'
+              }`}
+            >
+              {user.role}
+            </span>
+          </div>
+        )}
 
         <button
-          onClick={() => switchRole('admin@flyby.com', 'admin123')}
-          disabled={user?.email === 'admin@glyby.com'}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded"
+          onClick={handleLogout}
+          className="bg-red-600/80 hover:bg-red-600 active:bg-red-700 text-white text-xs px-3 py-1.5 rounded border border-red-500/60 transition cursor-pointer flex items-center gap-1.5"
+          title="Sign out of current session"
         >
-          Admin
-        </button>
-
-        <button
-          onClick={() => switchRole('pilot1@flyby.com', 'pilot123')}
-          disabled={user?.email === 'pilot1@flyby.com'}
-          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded"
-        >
-          Pilot1
-        </button>
-
-        <button
-          onClick={() => switchRole('pilot2@flyby.com', 'pilot123')}
-          disabled={user?.email === 'pilot2@flyby.com'}
-          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded"
-        >
-          Pilot2
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign Out</span>
         </button>
       </div>
     </header>

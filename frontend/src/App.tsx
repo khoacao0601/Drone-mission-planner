@@ -23,7 +23,7 @@ function App() {
       }
     };
 
-    restoreSession();
+    void restoreSession();
   }, [login, setInitializing]);
 
   // 1. Loading Screen during initial session check

@@ -177,7 +177,7 @@ export const Sidebar: React.FC = () => {
         <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-lg text-amber-300 border-b border-amber-500/30">
           <div className="font-bold flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-400" />
-            Pilot Mode Active
+            <span>Pilot Mode Active</span>
           </div>
           <p className="text-[11px] text-amber-300/80 mt-1">
             Read-only access: Select an assigned mission below to view 3D flight trajectory.

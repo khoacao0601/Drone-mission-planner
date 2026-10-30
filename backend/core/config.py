@@ -31,6 +31,7 @@ class Settings(BaseSettings):
         "https://drone-planner-fly.khoacao.dev",
     ]
     COOKIE_SECURE: bool = False 
+    COOKIE_SAMESITE: str = "lax"  
 
     # Configure to path to file .env in root directory
     model_config = SettingsConfigDict(

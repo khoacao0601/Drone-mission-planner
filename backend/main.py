@@ -9,8 +9,8 @@ from api.v1.mission import router as mission_router
 from core.config import settings
 from core.database import Base, engine
 
-# Start App
-app = FastAPI(title=settings.PROJECT_NAME)
+# Start App (turn off redirect_slashes to avoid loop 307 on AWS Lambda)
+app = FastAPI(title=settings.PROJECT_NAME, redirect_slashes=False)
 
 # Config CORS
 app.add_middleware(

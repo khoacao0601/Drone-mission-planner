@@ -13,6 +13,7 @@ from services import mission_service
 router = APIRouter(prefix="/missions", tags=["Missions"])
 
 # Create mission
+@router.post("", response_model=MissionResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=MissionResponse, status_code=status.HTTP_201_CREATED)
 
 def create_mission(
@@ -24,6 +25,7 @@ def create_mission(
 
 
 # Get mission depend on role
+@router.get("", response_model=List[MissionResponse])
 @router.get("/", response_model=List[MissionResponse])
 
 def get_missions(

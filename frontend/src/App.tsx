@@ -44,10 +44,12 @@ function App() {
 
   // 3. Authenticated: Render 3D Flight Planner Dashboard
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-slate-950">
+    <div className="flex flex-col w-screen h-screen overflow-hidden bg-slate-950">
       <Header />
-      <Sidebar />
-      <MapViewer />
+      <main className="relative flex-1 w-full h-full overflow-hidden">
+        <Sidebar />
+        <MapViewer />
+      </main>
     </div>
   );
 }

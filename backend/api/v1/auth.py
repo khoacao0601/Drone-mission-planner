@@ -23,10 +23,10 @@ def set_refresh_cookie(response: Response, refresh_token: str) -> None:
         key=REFRESH_COOKIE_NAME,
         value=refresh_token,
         httponly=True,                                          # prevent JavaScript read (avoid XSS)
-        samesite="lax",                                         # avoid CSRF
+        samesite=settings.COOKIE_SAMESITE,                      # avoid CSRF
         secure=settings.COOKIE_SECURE,                          # use var from config
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600, # 7 days by seconds
-        path=REFRESH_COOKIE_PATH,                               # only send this cookie when request to /api/v1/auth
+        path="/",
     )
 
 
@@ -53,9 +53,9 @@ def logout(response: Response):
     # Delete HttpOnly cookie by expiring it immediately
     response.delete_cookie(
         key=REFRESH_COOKIE_NAME,
-        path=REFRESH_COOKIE_PATH,
+        path="/",
         httponly=True,
-        samesite="lax",
+        samesite=settings.COOKIE_SAMESITE,
         secure=settings.COOKIE_SECURE
     )
     return {"message": "Logged out successfully"}

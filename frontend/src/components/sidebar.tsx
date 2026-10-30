@@ -98,7 +98,7 @@ export const Sidebar: React.FC = () => {
 
       {/* SECTION 1: PLANNING FORM (ADMIN ONLY) */}
       {user?.role === 'ADMIN' ? (
-        <form onSubmit={handleSave} className="space-y-3 border-b border-amber-500/30 pb-3.5">
+        <form onSubmit={(e) => { void handleSave(e); }} className="space-y-3 border-b border-amber-500/30 pb-3.5">
           <div className="flex justify-between items-center">
             <span className="text-[11px] font-bold text-stone-200 uppercase tracking-wide">
               Route Planning
@@ -213,9 +213,11 @@ export const Sidebar: React.FC = () => {
                   <div className="font-bold text-white">{m.name}</div>
                   <div className="text-[10px] text-stone-300 mt-0.5 flex items-center gap-1.5">
                     <span className="font-mono font-semibold text-amber-400">{m.waypoints.length} pts</span>
+                    {' '}
                     <span>•</span>
+                    {' '}
                     <span
-                      className={`px-1.5 py-0.2 rounded text-[9px] font-semibold ${
+                      className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${
                         m.assigned_to_id
                           ? 'bg-amber-900/50 text-amber-300 border border-amber-600/50'
                           : 'bg-stone-800 text-stone-400'
@@ -231,7 +233,7 @@ export const Sidebar: React.FC = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(m.id);
+                      void handleDelete(m.id);
                     }}
                     className="text-red-400 hover:text-white bg-red-950/50 hover:bg-red-600 border border-red-500/50 hover:border-red-400 p-1.5 rounded-lg transition cursor-pointer shadow-sm active:scale-95"
                     title="Delete Mission"

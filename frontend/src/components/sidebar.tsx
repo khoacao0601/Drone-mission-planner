@@ -96,8 +96,58 @@ export const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      {/* SECTION 1: PLANNING FORM (ADMIN ONLY) */}
-      {user?.role === 'ADMIN' ? (
+      {/* SECTION 1: EITHER VIEWING AN EXISTING MISSION OR PLANNING A NEW ROUTE */}
+      {selectedMission ? (
+        // A. INSPECTION MODE: Viewing a saved mission (Read-Only)
+        <div className="space-y-3 border-b border-amber-500/30 pb-3.5">
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] font-bold text-stone-200 uppercase tracking-wide flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              Viewing Route
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 shadow-sm">
+              {selectedMission.waypoints.length} WAYPOINTS
+            </span>
+          </div>
+
+          {/* Mission Details Card */}
+          <div className="bg-[#0a0705]/50 p-3 rounded-lg border border-amber-500/30 space-y-2">
+            <div className="font-bold text-sm text-white">{selectedMission.name}</div>
+            {selectedMission.description && (
+              <p className="text-[11px] text-stone-400">{selectedMission.description}</p>
+            )}
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-stone-800">
+              <div>
+                <span className="text-stone-500 block text-[10px] uppercase">Altitude</span>
+                <span className="font-mono font-semibold text-yellow-400">{selectedMission.flight_altitude}m ASL</span>
+              </div>
+              <div>
+                <span className="text-stone-500 block text-[10px] uppercase">Speed</span>
+                <span className="font-mono font-semibold text-cyan-300">{selectedMission.horizontal_speed} m/s</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Switch back to Planning Mode Button (Admin Only) */}
+          {user?.role === 'ADMIN' && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMission(null);
+                clearWaypoint();
+              }}
+              className="w-full bg-stone-800/80 hover:bg-stone-700/90 active:scale-95 text-amber-300 hover:text-white py-2 rounded-lg font-semibold tracking-wide border border-amber-500/40 hover:border-amber-400 transition cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+              title="Return to Route Planning Mode"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Plan New Route</span>
+            </button>
+          )}
+        </div>
+      ) : user?.role === 'ADMIN' ? (
+        // B. PLANNING MODE: Admin creates a new route
         <form onSubmit={(e) => { void handleSave(e); }} className="space-y-3 border-b border-amber-500/30 pb-3.5">
           <div className="flex justify-between items-center">
             <span className="text-[11px] font-bold text-stone-200 uppercase tracking-wide">
@@ -174,9 +224,10 @@ export const Sidebar: React.FC = () => {
           </div>
         </form>
       ) : (
+        // C. Pilot View-Only (When no mission is selected yet)
         <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-lg text-amber-300 border-b border-amber-500/30">
           <div className="font-bold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="w-2 h-2 rounded-full bg-amber-400" />{' '}
             <span>Pilot Mode Active</span>
           </div>
           <p className="text-[11px] text-amber-300/80 mt-1">

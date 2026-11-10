@@ -36,14 +36,14 @@ const sortWaypointsByAngle = (points: Waypoint[]): Waypoint[] => {
 
 export const MapViewer: React.FC = () => {
   const user = useAuthStore((s) => s.user);
-  const { waypoints, addWayPoint, altitude } = useMissionStore();
+  const { waypoints, addWayPoint, altitude, selectedMission } = useMissionStore();
 
   // Add waypoint when Admin clicks on the map
-  const handleMapClick = (info: any) => {
-    if (user?.role !== 'ADMIN' || !info.coordinate) return;
-    const [lng, lat] = info.coordinate;
-    addWayPoint({ lng, lat, alt: altitude });
-  };
+const handleMapClick = (info: any) => {
+  if (user?.role !== 'ADMIN' || selectedMission || !info.coordinate) return;
+  const [lng, lat] = info.coordinate;
+  addWayPoint({ lng, lat, alt: altitude });
+};
 
   // Automatically order waypoints around perimeter regardless of user click sequence
   const orderedWaypoints = sortWaypointsByAngle(waypoints);
@@ -101,7 +101,7 @@ export const MapViewer: React.FC = () => {
         controller={true}
         layers={[dropLinesLayer, polygonLayer, flightPathLayer, markersLayer]}
         onClick={handleMapClick}
-        getCursor={() => (user?.role === 'ADMIN' ? 'crosshair' : 'default')}
+        getCursor={() => (user?.role === 'ADMIN' && !selectedMission ? 'crosshair' : 'default')}
       >
         <Map
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}

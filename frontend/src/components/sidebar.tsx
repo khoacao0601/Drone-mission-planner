@@ -13,6 +13,7 @@ export const Sidebar: React.FC = () => {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [name, setName] = useState('');
   const [pilotId, setPilotId] = useState<number | null>(2);
+  const [speed, setSpeed] = useState<number>(15);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // 1. Fetch missions list from backend
@@ -34,7 +35,7 @@ export const Sidebar: React.FC = () => {
 
     await missionAPI.createMission({
       name,
-      horizontal_speed: 15,
+      horizontal_speed: speed,
       altitude_mode: 'RELATIVE_TO_TAKEOFF',
       flight_altitude: altitude,
       assigned_to_id: pilotId,
@@ -42,6 +43,7 @@ export const Sidebar: React.FC = () => {
     });
 
     setName('');
+    setSpeed(15);
     clearWaypoint();
     fetchMissions();
   };
@@ -86,7 +88,9 @@ export const Sidebar: React.FC = () => {
               </div>
               <div>
                 <span className="text-stone-500 block text-[10px] uppercase">Speed</span>
-                <span className="font-mono font-semibold text-cyan-300">{selectedMission.horizontal_speed} m/s</span>
+                <span className="font-mono font-semibold text-cyan-300">
+                  {selectedMission.horizontal_speed} m/s ({Math.round(selectedMission.horizontal_speed * 3.6)} km/h)
+                </span>
               </div>
             </div>
           </div>
@@ -169,6 +173,31 @@ export const Sidebar: React.FC = () => {
               value={altitude}
               onChange={(e) => setAltitude(Number(e.target.value))}
               className="w-full accent-amber-400 cursor-pointer h-1.5 bg-stone-800 rounded-lg"
+            />
+          </div>
+
+          {/* Horizontal Speed Range Slider */}
+          <div className="space-y-1.5 bg-[#0a0705]/35 p-2.5 rounded-lg border border-stone-800/80">
+            <div className="flex justify-between items-center text-stone-200 text-[11px]">
+              <span className="flex items-center gap-1 font-medium">
+                <svg className="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Horizontal Speed:
+              </span>
+              {/* Hiển thị song song m/s và km/h */}
+              <span className="font-mono font-bold text-cyan-400 bg-cyan-400/15 px-2 py-0.5 rounded border border-cyan-400/50 shadow-sm">
+                {speed} m/s ({Math.round(speed * 3.6)} km/h)
+              </span>
+            </div>
+            <input
+              type="range"
+              min="2"
+              max="20"
+              step="1"
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-stone-800 rounded-lg"
             />
           </div>
 

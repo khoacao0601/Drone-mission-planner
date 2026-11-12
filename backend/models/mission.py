@@ -4,7 +4,9 @@ from datetime import datetime
 from typing import Optional
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from models.user import User
 
 from core.database import Base
 
@@ -27,5 +29,8 @@ class Mission(Base):
     # Connection to table Users
     created_by_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
     assigned_to_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+
+    #JOIN get details from Pilot
+    assigned_to: Mapped[Optional[User]] = relationship("User", foreign_keys=[assigned_to_id], lazy="joined")
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())

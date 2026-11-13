@@ -81,6 +81,7 @@ export const Sidebar: React.FC = () => {
             {selectedMission.description && (
               <p className="text-[11px] text-stone-400">{selectedMission.description}</p>
             )}
+           {/* Altitude & Speed Grid */}
             <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-stone-800">
               <div>
                 <span className="text-stone-500 block text-[10px] uppercase">Altitude</span>
@@ -92,6 +93,14 @@ export const Sidebar: React.FC = () => {
                   {selectedMission.horizontal_speed} m/s ({Math.round(selectedMission.horizontal_speed * 3.6)} km/h)
                 </span>
               </div>
+            </div>
+
+            {/* Display assigned pilot (Placed outside the grid) */}
+            <div className="pt-2 border-t border-stone-800 flex justify-between items-center text-[11px]">
+              <span className="text-stone-500 uppercase text-[10px]">Assigned Pilot</span>
+              <span className="font-mono font-semibold text-amber-300">
+                {selectedMission.assigned_to ? selectedMission.assigned_to.email : 'Unassigned'}
+              </span>
             </div>
           </div>
 
@@ -185,7 +194,7 @@ export const Sidebar: React.FC = () => {
                 </svg>
                 Horizontal Speed:
               </span>
-              {/* Hiển thị song song m/s và km/h */}
+              {/* Display speed in m/s and km/h */}
               <span className="font-mono font-bold text-cyan-400 bg-cyan-400/15 px-2 py-0.5 rounded border border-cyan-400/50 shadow-sm">
                 {speed} m/s ({Math.round(speed * 3.6)} km/h)
               </span>
@@ -302,24 +311,23 @@ export const Sidebar: React.FC = () => {
                     : 'bg-[#0a0705]/40 border-stone-800/80 hover:border-amber-600/50 hover:bg-stone-900/50'
                 }`}
               >
-                <div>
+                                <div>
                   <div className="font-bold text-white">{m.name}</div>
                   <div className="text-[10px] text-stone-300 mt-0.5 flex items-center gap-1.5">
                     <span className="font-mono font-semibold text-amber-400">{m.waypoints.length} pts</span>
-                    {' '}
-                    <span>•</span>
-                    {' '}
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${
-                        m.assigned_to_id
-                          ? 'bg-amber-900/50 text-amber-300 border border-amber-600/50'
-                          : 'bg-stone-800 text-stone-400'
-                      }`}
-                    >
-                      {m.assigned_to_id ? 'Assigned' : 'Unassigned'}
-                    </span>
                   </div>
                 </div>
+
+                {/* Assigned pilot badge */}
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${
+                    m.assigned_to
+                      ? 'bg-amber-900/50 text-amber-300 border border-amber-600/50'
+                      : 'bg-stone-800 text-stone-400'
+                  }`}
+                >
+                  {m.assigned_to ? m.assigned_to.email : 'Unassigned'}
+                </span>
 
                 {/* Highly Visible Red Delete Button (Admin Only) */}
                 {user?.role === 'ADMIN' && (

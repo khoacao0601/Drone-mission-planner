@@ -29,13 +29,17 @@ export const Sidebar: React.FC = () => {
 
   // 2. Admin deletes mission
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this mission?')) return;
-    await missionAPI.deleteMission(id);
-    if (selectedMission?.id === id) {
-      setSelectedMission(null);
-      clearWaypoint();
+    try {
+      if (!confirm('Are you sure you want to delete this mission?')) return;
+      await missionAPI.deleteMission(id);
+      if (selectedMission?.id === id) {
+        setSelectedMission(null);
+        clearWaypoint();
+      }
+      fetchMissions();
+    } catch (error) {
+      console.error(error);
     }
-    fetchMissions();
   };
 
   // Render Section 1: Inspection Card vs Route Planning Form vs Pilot View-Only

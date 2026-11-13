@@ -11,6 +11,7 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
   const [name, setName] = useState('');
   const [pilotId, setPilotId] = useState<number | null>(2);
   const [speed, setSpeed] = useState<number>(15);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Admin saves mission
   const handleSave = async (e: React.FormEvent) => {
@@ -20,19 +21,29 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
       return;
     }
 
-    await missionAPI.createMission({
-      name,
-      horizontal_speed: speed,
-      altitude_mode: 'RELATIVE_TO_TAKEOFF',
-      flight_altitude: altitude,
-      assigned_to_id: pilotId,
-      waypoints: waypoints,
-    });
+    setIsSaving(true);
 
-    setName('');
-    setSpeed(15);
-    clearWaypoint();
-    onMissionCreated();
+    try {
+      await missionAPI.createMission({
+        name,
+        horizontal_speed: speed,
+        altitude_mode: 'RELATIVE_TO_TAKEOFF',
+        flight_altitude: altitude,
+        assigned_to_id: pilotId,
+        waypoints: waypoints,
+      });
+
+      setName('');
+      setSpeed(15);
+      clearWaypoint();
+      onMissionCreated();
+    }
+    catch (error) {
+      console.error(error);
+    }
+    finally {
+      setIsSaving(false);
+    }
   };
 
 
@@ -123,9 +134,10 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
       <div className="flex gap-2 pt-1">
         <button
           type="submit"
-          className="flex-1 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 active:scale-95 text-stone-950 py-2 rounded-lg font-bold tracking-wide shadow-lg shadow-amber-600/30 border border-amber-400/50 transition cursor-pointer"
+          disabled={isSaving}
+          className="flex-1 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 active:scale-95 text-stone-950 py-2 rounded-lg font-bold tracking-wide shadow-lg shadow-amber-600/30 border border-amber-400/50 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save Route
+          {isSaving ? 'Saving...' : 'Save Route'}
         </button>
         <button
           type="button"

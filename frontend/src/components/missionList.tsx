@@ -20,38 +20,37 @@ export const MissionList: React.FC<MissionListProps> = ({ missions, selectedMiss
                 ) : (
                     missions.map((m) => (
                         <div
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectMission(m); } }}
                             key={m.id}
-                            onClick={() => onSelectMission(m)}
-                            className={`p-2.5 rounded-xl border cursor-pointer flex justify-between items-center transition-all ${selectedMissionId === m.id
-                                    ? 'bg-amber-950/60 border-amber-400 shadow-lg shadow-amber-500/30'
-                                    : 'bg-[#0a0705]/40 border-stone-800/80 hover:border-amber-600/50 hover:bg-stone-900/50'
+                            className={`p-2.5 gap-2 rounded-xl border cursor-pointer flex justify-between items-center transition-all ${selectedMissionId === m.id
+                                ? 'bg-amber-950/60 border-amber-400 shadow-lg shadow-amber-500/30'
+                                : 'bg-[#0a0705]/40 border-stone-800/80 hover:border-amber-600/50 hover:bg-stone-900/50'
                                 }`}
                         >
-                            <div>
-                                <div className="font-bold text-white">{m.name}</div>
-                                <div className="text-[10px] text-stone-300 mt-0.5 flex items-center gap-1.5">
-                                    <span className="font-mono font-semibold text-amber-400">{m.waypoints.length} pts</span>
-                                </div>
-                            </div>
+                            <button type="button" onClick={() => onSelectMission(m)} className="flex-1 flex justify-between items-center text-left cursor-pointer">
+                                <div>
+                                    <div className="font-bold text-white">{m.name}</div>
+                                    <div className="text-[10px] text-stone-300 mt-0.5 flex items-center gap-1.5">
 
-                            {/* Assigned pilot badge */}
-                            <span
-                                className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${m.assigned_to
+                                        <span className="font-mono font-semibold text-amber-400">{m.waypoints.length} pts</span>
+                                    </div>
+                                </div>
+
+                                {/* Assigned pilot badge */}
+                                <span
+                                    className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${m.assigned_to
                                         ? 'bg-amber-900/50 text-amber-300 border border-amber-600/50'
                                         : 'bg-stone-800 text-stone-400'
-                                    }`}
-                            >
-                                {m.assigned_to ? m.assigned_to.email : 'Unassigned'}
-                            </span>
+                                        }`}
+                                >
+                                    {m.assigned_to ? m.assigned_to.email : 'Unassigned'}
+                                </span>
+                            </button>
 
                             {/* Highly Visible Red Delete Button (Admin Only) */}
                             {isAdmin && (
                                 <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
+                                    type="button"
+                                    onClick={() => {
                                         onDeleteMission(m.id)
                                     }}
                                     className="text-red-400 hover:text-white bg-red-950/50 hover:bg-red-600 border border-red-500/50 hover:border-red-400 p-1.5 rounded-lg transition cursor-pointer shadow-sm active:scale-95"

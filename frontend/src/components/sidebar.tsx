@@ -43,15 +43,15 @@ export const Sidebar: React.FC = () => {
     // A. INSPECTION MODE: Viewing a saved mission (Read-Only)
     if (selectedMission) {
       return (
-        <MissionDetailsCard 
-              mission={selectedMission} 
-              isAdmin={user?.role === 'ADMIN'}
-              onPlanNewRoute={
-                () => { 
-                  setSelectedMission(null); 
-                  clearWaypoint();
-                }
-              }
+        <MissionDetailsCard
+          mission={selectedMission}
+          isAdmin={user?.role === 'ADMIN'}
+          onPlanNewRoute={
+            () => {
+              setSelectedMission(null);
+              clearWaypoint();
+            }
+          }
         ></MissionDetailsCard>
       );
     }
@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
     // B. PLANNING MODE: Admin creates a new route
     if (user?.role === 'ADMIN') {
       return (
-        <MissionPlanningForm onMissionCreated={fetchMissions}/>
+        <MissionPlanningForm onMissionCreated={fetchMissions} />
       );
     }
 
@@ -118,14 +118,14 @@ export const Sidebar: React.FC = () => {
 
       {/*EITHER VIEWING AN EXISTING MISSION OR PLANNING A NEW ROUTE */}
       {renderActiveSection()}
-     
-      <MissionList 
-          missions={missions} 
-          selectedMissionId={selectedMission?.id}
-          isAdmin={user?.role === "ADMIN"}
-          onSelectMission={setSelectedMission}
-          onDeleteMission={(id) => { void handleDelete(id); }}
-        />
+
+      <MissionList
+        missions={missions}
+        selectedMissionId={selectedMission?.id}
+        isAdmin={user?.role === "ADMIN"}
+        onSelectMission={setSelectedMission}
+        onDeleteMission={(id) => { void handleDelete(id); }}
+      />
     </div>
   );
 };

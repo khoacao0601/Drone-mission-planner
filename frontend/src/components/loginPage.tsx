@@ -72,23 +72,23 @@ export const LoginPage: React.FC = () => {
 
     return (
         <div className="min-h-screen w-screen relative overflow-hidden select-none flex flex-col justify-center items-center px-4">
-        {/* 1. LAYER NỀN: NỬA TRÊN LÀ BẦU TRỜI (SKY), NỬA DƯỚI LÀ MẶT ĐẤT (EARTH) */}
+        {/* 1. BACKGROUND LAYER: SKY (TOP) & EARTH (BOTTOM) */}
         <div className="absolute inset-0 pointer-events-none flex flex-col">
-            {/* Nửa trên: Sky atmospheric gradient */}
+            {/* Top half: Sky atmospheric gradient */}
             <div className="h-1/2 w-full bg-gradient-to-b from-sky-950 via-[#0a2540] to-[#0f172a] relative">
-            {/* Vầng sáng chân trời */}
+            {/* Horizon glow */}
             <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[700px] h-64 bg-cyan-400/15 rounded-full blur-3xl" />
             </div>
 
-            {/* Nửa dưới: Earth/Ground terrain gradient */}
+            {/* Bottom half: Earth/Ground terrain gradient */}
             <div className="h-1/2 w-full bg-gradient-to-b from-[#0f172a] via-[#0d140e] to-[#080b08] relative border-t border-cyan-500/20">
-            {/* Lưới tọa độ mặt đất 3D (Tactical ground grid) */}
+            {/* Tactical 3D ground coordinate grid */}
             <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:24px_24px]" />
             <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 to-transparent" />
             </div>
         </div>
 
-        {/* 2. LAYER ĐƯỜNG BAY 3D (FLIGHT PATH & GOLDEN DROP-LINES) */}
+        {/* 2. 3D FLIGHT PATH & GOLDEN DROP-LINES LAYER */}
         <svg
             className="absolute inset-0 w-full h-full pointer-events-none z-0"
             xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +108,7 @@ export const LoginPage: React.FC = () => {
             </filter>
             </defs>
 
-            {/* Drop-lines: Nối từ Waypoint trên trời cắm thẳng xuống mặt đất (y=450 là đường chân trời) */}
+            {/* Drop-lines: Vertical lines from aerial waypoints down to ground (y=450 horizon) */}
             <line x1="280" y1="260" x2="280" y2="450" stroke="#ffd700" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
             <circle cx="280" cy="450" r="3" fill="#ffd700" opacity="0.8" />
 
@@ -130,14 +130,14 @@ export const LoginPage: React.FC = () => {
             filter="url(#glow)"
             />
 
-            {/* Waypoints (Các trạm bay trên không) */}
+            {/* Aerial waypoints */}
             <circle cx="280" cy="260" r="5" fill="#ffffff" stroke="#00f0ff" strokeWidth="2.5" />
             <circle cx="520" cy="180" r="6" fill="#ffffff" stroke="#00f0ff" strokeWidth="3" />
             <circle cx="920" cy="210" r="6" fill="#ffffff" stroke="#00f0ff" strokeWidth="3" />
             <circle cx="1180" cy="310" r="5" fill="#ffffff" stroke="#00f0ff" strokeWidth="2.5" />
         </svg>
 
-        {/* 3. KHỐI FORM ĐĂNG NHẬP (TACTICAL GLASSMORPHISM) */}
+        {/* 3. LOGIN FORM CARD (TACTICAL GLASSMORPHISM) */}
         <div className="relative z-10 w-full max-w-md bg-gray-900/85 border border-sky-500/30 rounded-2xl shadow-2xl p-6 md:p-8 backdrop-blur-xl">
             {/* Header Title */}
             <div className="text-center mb-6">

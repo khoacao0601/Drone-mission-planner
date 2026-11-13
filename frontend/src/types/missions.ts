@@ -53,3 +53,12 @@ export interface MissionDetailsCardProps {
 export interface MissionPlanningFormProps {
     onMissionCreated: () => void;
 }
+
+//Mission List Props 
+export interface MissionListProps {
+    missions: Mission[];
+    selectedMissionId?: number | null;
+    isAdmin: boolean;
+    onSelectMission: (mission: Mission) => void;
+    onDeleteMission: (id: number) => void;
+}

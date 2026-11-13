@@ -3,6 +3,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, List
+from schemas.user import UserResponse
 
 # Data for new Mission
 class MissionCreate(BaseModel):
@@ -27,6 +28,7 @@ class MissionResponse(BaseModel):
     waypoints: list
     created_by_id: int
     assigned_to_id: Optional[int] = None
+    assigned_to: Optional[UserResponse] = None
     created_at: datetime
 
     # let Pydantic read data from SQLAlchemy Model

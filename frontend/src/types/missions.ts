@@ -41,3 +41,24 @@ export interface Mission {
     assigned_to?: User | null;
     created_at: string;
 }
+
+//Mission details Card
+export interface MissionDetailsCardProps {
+    mission: Mission;
+    isAdmin: boolean;
+    onPlanNewRoute: () => void;
+}
+
+//Mission Planning Form
+export interface MissionPlanningFormProps {
+    onMissionCreated: () => void;
+}
+
+//Mission List Props 
+export interface MissionListProps {
+    missions: Mission[];
+    selectedMissionId?: number | null;
+    isAdmin: boolean;
+    onSelectMission: (mission: Mission) => void;
+    onDeleteMission: (id: number) => void;
+}

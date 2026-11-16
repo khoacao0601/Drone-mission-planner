@@ -1,13 +1,14 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
-import React from 'react';
-import { PathLayer, ScatterplotLayer, LineLayer, PolygonLayer, DeckGL } from 'deck.gl';
+import React, { useState, useEffect } from 'react';
+import { PathLayer, ScatterplotLayer, LineLayer, PolygonLayer, DeckGL, FlyToInterpolator } from 'deck.gl';
 import Map from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { useAuthStore } from '../store/useAuthStore';
 import { useMissionStore } from '../store/useMissionStore';
 import type { Waypoint } from '../types/missions';
+import type { MapViewState } from 'deck.gl';
 
 const INITIAL_VIEW = {
   longitude: -118.2437,
@@ -37,6 +38,28 @@ const sortWaypointsByAngle = (points: Waypoint[]): Waypoint[] => {
 export const MapViewer: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const { waypoints, addWayPoint, altitude, selectedMission } = useMissionStore();
+  const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW);
+
+  useEffect(() => {
+    if(!selectedMission || selectedMission.waypoints.length === 0) {
+      return;
+    }
+    
+    const points =  selectedMission.waypoints;
+    const centerLng = points.reduce((sum, p) => sum + p.lng, 0) / points.length;
+    const centerLat = points.reduce((sum, p) => sum + p.lat, 0) / points.length;
+
+    setViewState((prev) => ({
+      longitude: centerLng,
+      latitude: centerLat,
+      zoom: 16,
+      pitch: 55, 
+      bearing: -20,
+      transitionDuration: 1000,
+      transitionInterpolator: new FlyToInterpolator()
+    }))
+
+  }, [selectedMission])
 
   // Add waypoint when Admin clicks on the map
 const handleMapClick = (info: any) => {
@@ -97,11 +120,12 @@ const handleMapClick = (info: any) => {
   return (
     <div className="relative w-full h-full bg-slate-950">
       <DeckGL
-        initialViewState={INITIAL_VIEW}
+        viewState={viewState}
         controller={true}
         layers={[dropLinesLayer, polygonLayer, flightPathLayer, markersLayer]}
         onClick={handleMapClick}
         getCursor={() => (user?.role === 'ADMIN' && !selectedMission ? 'crosshair' : 'default')}
+        onViewStateChange={({ viewState: nextViewState }) => setViewState(nextViewState as MapViewState)}
       >
         <Map
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}

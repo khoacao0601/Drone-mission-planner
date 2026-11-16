@@ -4,6 +4,15 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, List
 from schemas.user import UserResponse
+from enum import Enum
+
+# Enum
+class MissionStatus(str, Enum):
+    ASSIGNED = "ASSIGNED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
 
 # Data for new Mission
 class MissionCreate(BaseModel):
@@ -33,3 +42,6 @@ class MissionResponse(BaseModel):
 
     # let Pydantic read data from SQLAlchemy Model
     model_config = {"from_attributes": True}
+
+class MissionStatusUpdate(BaseModel):
+    status: MissionStatus

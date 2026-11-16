@@ -49,7 +49,7 @@ export const MapViewer: React.FC = () => {
     const centerLng = points.reduce((sum, p) => sum + p.lng, 0) / points.length;
     const centerLat = points.reduce((sum, p) => sum + p.lat, 0) / points.length;
 
-    setViewState((prev) => ({
+    setViewState(() => ({
       longitude: centerLng,
       latitude: centerLat,
       zoom: 16,

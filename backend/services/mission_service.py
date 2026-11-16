@@ -5,7 +5,12 @@ from sqlalchemy.orm import Session
 
 from crud import crud_mission
 from models.user import User
-from schemas.mission import MissionCreate
+from schemas.mission import MissionCreate, MissionStatus
+
+PILOT_ALLOWED_TRANSITIONS = {
+    MissionStatus.ASSIGNED.value: [MissionStatus.IN_PROGRESS.value],
+    MissionStatus.IN_PROGRESS.value: [MissionStatus.COMPLETED.value],
+}
 
 # Create Mission
 def create_new_mission( db: Session, mission: MissionCreate, current_user: User):
@@ -48,3 +53,16 @@ def delete_mission( db: Session, mission_id: int):
 
     crud_mission.delete_mission(db=db, db_mission=mission)
     return { "message": "Mission deleted successfully!"}
+
+
+# Update Mission Status
+def update_mission_status(db: Session, mission_id: int, new_status: MissionStatus, current_user: User):
+    mission = get_mission_detail(db, mission_id=mission_id, current_user=current_user)
+    if current_user.role.upper() != "ADMIN":
+        allowed_statuses = PILOT_ALLOWED_TRANSITIONS.get(mission.status, [])
+        if new_status.value not in allowed_statuses:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot update status"
+            )
+    return crud_mission.update_mission_status(db=db, db_mission=mission, new_status=new_status.value)

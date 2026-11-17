@@ -1,4 +1,5 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
+
 // Calculate total distance from all waypoints
 
 import type { Waypoint } from "../types/missions";
@@ -6,7 +7,7 @@ import type { Waypoint } from "../types/missions";
 // Radius in meter
 const EARTH_RADIUS_METERS = 6371000;
 
-export const calculateDistanceMeters = (waypoints: Waypoint[]) => {
+export const calculateDistanceMeters = (waypoints: Waypoint[]): number => {
 
     if(waypoints.length < 2){
         return 0;

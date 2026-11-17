@@ -23,6 +23,7 @@ export const Sidebar: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!user) { setMissions([]); return; }
     fetchMissions();
   }, [user]);
 

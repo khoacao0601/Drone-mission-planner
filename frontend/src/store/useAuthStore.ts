@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import type { User } from '../types/missions';
+import { useMissionStore } from './useMissionStore';
 
 interface AuthStore {
     user: User | null;
@@ -23,6 +24,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     // Purge memory upon logout
     logout: () => {
         set({ token: null, user: null, isInitializing: false });
+        useMissionStore.getState().setSelectedMission(null);
     },
     // Toggle initializing state
     setInitializing: (isInitializing) => {

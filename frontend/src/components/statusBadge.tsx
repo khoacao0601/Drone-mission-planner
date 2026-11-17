@@ -10,7 +10,7 @@ const STATUS_STYLES: Record<string, string> = {
     'CANCELLED': 'bg-red-950/80 text-red-300 border-red-500/50'
 }
 
-export const StatusBadge: React.FC<{status: MissionStatus | string}> = ({status}) => {
+export const StatusBadge: React.FC<{status: MissionStatus}> = ({status}) => {
 
     const colorClass = STATUS_STYLES[status] || 'bg-stone-800 text-stone-300 border-stone-600';
 

@@ -39,3 +39,10 @@ def create_mission(db: Session, mission: MissionCreate, created_by_id: int):
 def delete_mission( db: Session, db_mission: Mission):
     db.delete(db_mission)
     db.commit()
+
+# Update Status Mission
+def update_mission_status( db: Session, db_mission: Mission, new_status: str ):
+    db_mission.status = new_status
+    db.commit()
+    db.refresh(db_mission)
+    return db_mission

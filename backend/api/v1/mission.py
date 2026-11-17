@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from api.dependencies import get_current_user, is_admin
 from core.database import get_db
 from models.user import User
-from schemas.mission import MissionCreate, MissionResponse
+from schemas.mission import MissionCreate, MissionResponse, MissionStatusUpdate
 from services import mission_service
 
 router = APIRouter(prefix="/missions", tags=["Missions"])
@@ -52,3 +52,15 @@ def delete_mission(
     db: Annotated[Session, Depends(get_db)]
 ):
     return mission_service.delete_mission(db=db, mission_id=mission_id)
+
+# Update Mission Status
+@router.patch("/{mission_id}/status", response_model=MissionResponse)
+
+def update_mission_status(
+    mission_id: int,
+    status_update: MissionStatusUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    return mission_service.update_mission_status(db=db, mission_id=mission_id, new_status=status_update.status, current_user=current_user)
+

@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { MissionListProps } from "../types/missions";
+import { StatusBadge } from "./statusBadge";
 
 export const MissionList: React.FC<MissionListProps> = ({ missions, selectedMissionId, isAdmin, onSelectMission, onDeleteMission }) => {
     return (
@@ -31,7 +32,8 @@ export const MissionList: React.FC<MissionListProps> = ({ missions, selectedMiss
                                     <div className="font-bold text-white">{m.name}</div>
                                     <div className="text-[10px] text-stone-300 mt-0.5 flex items-center gap-1.5">
 
-                                        <span className="font-mono font-semibold text-amber-400">{m.waypoints.length} pts</span>
+                                        <span className="font-mono font-semibold text-amber-400">{m.waypoints.length} pts</span> 
+                                        <StatusBadge status={m.status} />
                                     </div>
                                 </div>
 

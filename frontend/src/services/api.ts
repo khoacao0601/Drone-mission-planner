@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
-import type { Mission, MissionCreate } from '../types/missions';
+import type { Mission, MissionCreate, MissionStatus } from '../types/missions';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
@@ -98,4 +98,12 @@ export const missionAPI = {
         const response = await api.delete<{ message: string }>(`/missions/${encodeURIComponent(safeId)}`);
         return response.data;
     },
+    updateMissionStatus: async (id: number, status: MissionStatus): Promise<Mission> => {
+        const safeId = Number(id);
+        if (!Number.isInteger(safeId) || safeId <= 0) {
+            throw new Error('Invalid mission ID');
+        }
+        const response = await api.patch<Mission>(`/missions/${encodeURIComponent(safeId)}/status`, { status });
+        return response.data;
+    }
 };

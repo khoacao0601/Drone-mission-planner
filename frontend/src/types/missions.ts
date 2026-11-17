@@ -31,7 +31,7 @@ export interface Mission {
     id: number;
     name: string;
     description?: string;
-    status: string;
+    status: MissionStatus;
     horizontal_speed: number;
     altitude_mode: string;
     flight_altitude: number;
@@ -47,6 +47,7 @@ export interface MissionDetailsCardProps {
     mission: Mission;
     isAdmin: boolean;
     onPlanNewRoute: () => void;
+    onStatusChange: (id: number, newStatus: MissionStatus) => void;
 }
 
 //Mission Planning Form
@@ -62,3 +63,6 @@ export interface MissionListProps {
     onSelectMission: (mission: Mission) => void;
     onDeleteMission: (id: number) => void;
 }
+
+//Mission Status Type
+export type MissionStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';

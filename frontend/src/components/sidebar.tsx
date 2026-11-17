@@ -7,7 +7,7 @@ import { missionAPI } from '../services/api';
 import { MissionDetailsCard } from './missionDetailsCard';
 import { MissionPlanningForm } from './missionPlanningForm';
 import { MissionList } from './missionList';
-import type { Mission } from '../types/missions';
+import type { Mission, MissionStatus } from '../types/missions';
 
 
 export const Sidebar: React.FC = () => {
@@ -42,12 +42,23 @@ export const Sidebar: React.FC = () => {
     }
   };
 
+  const handleStatusChange = async (id: number, newStatus: MissionStatus) => {
+      try {
+        const updated = await missionAPI.updateMissionStatus(id, newStatus);
+        setSelectedMission(updated);
+        fetchMissions();
+      } catch (error) {
+        console.error(error);
+      }
+  }
+
   // Render Section 1: Inspection Card vs Route Planning Form vs Pilot View-Only
   const renderActiveSection = () => {
     // A. INSPECTION MODE: Viewing a saved mission (Read-Only)
     if (selectedMission) {
       return (
         <MissionDetailsCard
+          onStatusChange={(id, status) => { void handleStatusChange(id, status); }}
           mission={selectedMission}
           isAdmin={user?.role === 'ADMIN'}
           onPlanNewRoute={

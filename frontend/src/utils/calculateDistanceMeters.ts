@@ -35,7 +35,7 @@ export const calculateDistanceMeters = (waypoints: Waypoint[]): number => {
         // Convert 2D to 3D
         const d2d = EARTH_RADIUS_METERS * c;
         const dAlt = p2.alt - p1.alt;
-        const segmentDistance = Math.sqrt(d2d ** 2 + dAlt ** 2);
+        const segmentDistance = Math.hypot(d2d, dAlt);
         totalDistance = segmentDistance + totalDistance;
     }
     return totalDistance;

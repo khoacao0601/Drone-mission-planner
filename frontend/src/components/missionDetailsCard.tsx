@@ -3,6 +3,10 @@
 import React from "react";
 import type { MissionDetailsCardProps, MissionStatus } from "../types/missions";
 import { StatusBadge } from "./statusBadge";
+import { calculateDistanceMeters } from "../utils/calculateDistanceMeters";
+import { calculateEstimatedDuration } from "../utils/calculateETAduration";
+import { calculatePolygonArea } from "../utils/calculatePolygonArea";
+import { formatDistance, formatDuration, formatDateTime, formatAltitudeMode } from "../utils/formatters";
 
 export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
   mission,
@@ -10,6 +14,12 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
   onPlanNewRoute,
   onStatusChange,
 }) => {
+
+  const distanceMeters = calculateDistanceMeters(mission.waypoints);
+  const durationSeconds = calculateEstimatedDuration(distanceMeters, mission.horizontal_speed);
+  const areaSqMeters =  calculatePolygonArea(mission.waypoints);
+  const takeoffPoint = mission.waypoints[0];
+
   return (
     <div className="space-y-3 border-b border-amber-500/30 pb-3.5">
       <div className="flex justify-between items-center">
@@ -28,6 +38,8 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
           <span className="font-bold text-sm text-white">{mission.name}</span>
           <StatusBadge status={mission.status} />
         </div>
+        <div className="text-[10px] font-mono text-stone-400">Created: {formatDateTime(mission.created_at)}</div>
+
 
         {mission.description && (
           <p className="text-[11px] text-stone-400">{mission.description}</p>
@@ -39,7 +51,7 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
               Altitude
             </span>
             <span className="font-mono font-semibold text-yellow-400">
-              {mission.flight_altitude}m ASL
+              {mission.flight_altitude}m {formatAltitudeMode(mission.altitude_mode)}
             </span>
           </div>
           <div>
@@ -53,6 +65,12 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-stone-800">
+          <span className="text-stone-500 block text-[10px] uppercase"> Distance {(formatDistance(distanceMeters))}</span>
+          <span className="text-stone-500 block text-[10px] uppercase">Est. Duration {(formatDuration(durationSeconds))}</span>
+          <span className="text-stone-500 block text-[10px] uppercase">Area {mission.waypoints.length >= 3 && (Math.round(areaSqMeters).toLocaleString() + " m²")}</span>
+        </div>
+
         {/* Display assigned pilot (Placed outside the grid) */}
         <div className="pt-2 border-t border-stone-800 flex justify-between items-center text-[11px]">
           <span className="text-stone-500 uppercase text-[10px]">
@@ -60,6 +78,14 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
           </span>
           <span className="font-mono font-semibold text-amber-300">
             {mission.assigned_to ? mission.assigned_to.email : "Unassigned"}
+          </span>
+        </div>
+        <div className="pt-2 border-t border-stone-800 flex justify-between items-center text-[11px]">
+          <span className="text-stone-500 uppercase text-[10px]">
+            Takeoff Point
+          </span>
+          <span className="font-mono font-semibold text-amber-300">
+            {takeoffPoint ? `${takeoffPoint.lat.toFixed(4)}, ${takeoffPoint.lng.toFixed(4)}` : "N/A"}
           </span>
         </div>
       </div>

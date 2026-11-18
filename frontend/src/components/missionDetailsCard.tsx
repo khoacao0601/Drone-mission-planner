@@ -3,6 +3,15 @@
 import React from "react";
 import type { MissionDetailsCardProps, MissionStatus } from "../types/missions";
 import { StatusBadge } from "./statusBadge";
+import { calculateDistanceMeters } from "../utils/calculateDistanceMeters";
+import { calculateEstimatedDuration } from "../utils/calculateETAduration";
+import { calculatePolygonArea } from "../utils/calculatePolygonArea";
+import {
+  formatDistance,
+  formatDuration,
+  formatDateTime,
+  formatAltitudeMode,
+} from "../utils/formatters";
 
 export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
   mission,
@@ -10,14 +19,31 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
   onPlanNewRoute,
   onStatusChange,
 }) => {
+  const distanceMeters = calculateDistanceMeters(mission.waypoints);
+  const durationSeconds = calculateEstimatedDuration(
+    distanceMeters,
+    mission.horizontal_speed,
+  );
+  const areaSqMeters = calculatePolygonArea(mission.waypoints);
+  const takeoffPoint = mission.waypoints[0];
+
   return (
     <div className="space-y-3 border-b border-amber-500/30 pb-3.5">
       <div className="flex justify-between items-center">
         <div className="text-[11px] font-bold text-stone-200 uppercase tracking-wide flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />{" "}
-          <span>Viewing Route</span>
+          <button
+            className="text-stone-300 hover:text-amber-300 px-1.5 py-0.5 rounded hover:bg-white/10 cursor-pointer border border-amber-500/30"
+            type="button"
+            onClick={onPlanNewRoute}
+          >
+            X
+          </button>
+          <span className="bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-lg">
+            Mission Details
+          </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 shadow-sm">
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-sans font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 shadow-sm">
           {mission.waypoints.length} WAYPOINTS
         </span>
       </div>
@@ -28,38 +54,81 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
           <span className="font-bold text-sm text-white">{mission.name}</span>
           <StatusBadge status={mission.status} />
         </div>
+        <div className="text-[10px] font-sans text-stone-400">
+          Created: {formatDateTime(mission.created_at)}
+        </div>
 
         {mission.description && (
           <p className="text-[11px] text-stone-400">{mission.description}</p>
         )}
         {/* Altitude & Speed Grid */}
-        <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-stone-800">
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-white/15">
           <div>
-            <span className="text-stone-500 block text-[10px] uppercase">
+            <span className="text-stone-300 block text-[10px] uppercase">
               Altitude
             </span>
-            <span className="font-mono font-semibold text-yellow-400">
-              {mission.flight_altitude}m ASL
+            <span className="font-sans font-semibold text-yellow-400">
+              {mission.flight_altitude}m{" "}
+              {formatAltitudeMode(mission.altitude_mode)}
             </span>
           </div>
           <div>
-            <span className="text-stone-500 block text-[10px] uppercase">
+            <span className="text-stone-300 block text-[10px] uppercase">
               Speed
             </span>
-            <span className="font-mono font-semibold text-cyan-300">
+            <span className="font-sans font-semibold text-cyan-300">
               {mission.horizontal_speed} m/s (
               {Math.round(mission.horizontal_speed * 3.6)} km/h)
             </span>
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-white/15">
+          <span className="text-stone-300 block text-[11px] uppercase tabular-nums">
+            {" "}
+            Distance:
+          </span>
+          <span className="font-semibold text-white tabular-nums">
+            {formatDistance(distanceMeters)}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-white/15">
+          <span className="text-stone-300 block text-[11px] uppercase tabular-nums">
+            Est. Duration:
+          </span>
+          <span className="font-semibold text-white tabular-nums">
+            {formatDuration(durationSeconds)}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-stone-300 pt-1.5 border-t border-white/15">
+          <span className="text-stone-300 block text-[11px] uppercase tabular-nums">
+            Area:
+          </span>
+          <span className="font-semibold text-white tabular-nums">
+            {mission.waypoints.length >= 3 &&
+              Math.round(areaSqMeters).toLocaleString() + " m²"}
+          </span>
+        </div>
+
         {/* Display assigned pilot (Placed outside the grid) */}
-        <div className="pt-2 border-t border-stone-800 flex justify-between items-center text-[11px]">
-          <span className="text-stone-500 uppercase text-[10px]">
+        <div className="pt-2 border-t border-white/15 flex justify-between items-center text-[11px]">
+          <span className="text-stone-300 uppercase text-[10px]">
             Assigned Pilot
           </span>
-          <span className="font-mono font-semibold text-amber-300">
+          <span className="font-sans font-semibold text-amber-300">
             {mission.assigned_to ? mission.assigned_to.email : "Unassigned"}
+          </span>
+        </div>
+        <div className="pt-2 border-t border-white/15 flex justify-between items-center text-[11px]">
+          <span className="text-stone-300 uppercase text-[10px]">
+            Takeoff Point
+          </span>
+          <span className="font-sans font-semibold text-amber-300">
+            {takeoffPoint
+              ? `${takeoffPoint.lat.toFixed(4)}, ${takeoffPoint.lng.toFixed(4)}`
+              : "N/A"}
           </span>
         </div>
       </div>
@@ -90,7 +159,7 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
             <span>Plan New Route</span>
           </button>
           <select
-            className="w-full bg-[#0a0705]/90 hover:bg-stone-900 text-amber-300 border border-amber-500/40 hover:border-amber-400 rounded-lg px-3 py-2 text-xs font-mono font-semibold cursor-pointer transition outline-none"
+            className="w-full bg-[#0a0705]/90 hover:bg-stone-900 text-amber-300 border border-amber-500/40 hover:border-amber-400 rounded-lg px-3 py-2 text-sm font-sans font-semibold cursor-pointer transition outline-none"
             value={mission.status}
             onChange={(e) =>
               onStatusChange(mission.id, e.target.value as MissionStatus)

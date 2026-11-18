@@ -99,7 +99,7 @@ export const Sidebar: React.FC = () => {
       <div className="absolute top-4 left-4 z-10">
         <button
           onClick={() => setIsCollapsed(false)}
-          className="flex items-center gap-2 bg-[#140e09]/70 hover:bg-[#1e150e]/85 text-amber-300 px-3.5 py-2 rounded-xl border border-amber-500/40 backdrop-blur-md shadow-xl shadow-black/80 transition-all cursor-pointer"
+          className="flex items-center gap-2 bg-[#140e09]/70 hover:bg-[#1e150e]/85 text-amber-300 px-3.5 py-2 rounded-xl border border-amber-500/40 backdrop-blur-lg shadow-xl shadow-black/80 transition-all cursor-pointer"
           title="Expand Tactical Mission Panel"
         >
           <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -112,7 +112,7 @@ export const Sidebar: React.FC = () => {
   }
 
   return (
-    <div className="absolute top-4 left-4 z-10 w-80 bg-[#120c08]/50 text-white p-4 rounded-2xl border border-amber-500/40 backdrop-blur-md shadow-2xl shadow-black/90 space-y-4 text-xs select-none transition-all">
+    <div className="absolute top-4 left-4 z-10 w-80 bg-[#120c08]/50 text-white p-4 rounded-2xl border border-amber-500/40 backdrop-blur-lg shadow-2xl shadow-black/90 space-y-4 text-xs select-none transition-all">
       {/* PANEL HEADER WITH LUMINOUS AMBER RADAR INDICATOR */}
       <div className="flex justify-between items-center border-b border-amber-500/30 pb-2.5">
         <div className="flex items-center gap-2">

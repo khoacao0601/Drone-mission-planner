@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
 import React, { useState, useEffect } from 'react';
-import { PathLayer, ScatterplotLayer, LineLayer, PolygonLayer, DeckGL, FlyToInterpolator } from 'deck.gl';
+import { PathLayer, ScatterplotLayer, LineLayer, PolygonLayer, DeckGL, FlyToInterpolator, TextLayer } from 'deck.gl';
 import Map from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -87,7 +87,8 @@ const handleMapClick = (info: any) => {
     data: orderedWaypoints,
     getSourcePosition: (w) => [w.lng, w.lat, 0],
     getTargetPosition: (w) => [w.lng, w.lat, w.alt],
-    getColor: [255, 215, 0],
+    getColor: (w: Waypoint) => (w === waypoints[0] ? [16, 185, 129] : [255, 215, 0]),
+    updateTriggers: { getColor: [waypoints] },
     getWidth: 2.5,
   });
 
@@ -109,12 +110,22 @@ const handleMapClick = (info: any) => {
     data: orderedWaypoints,
     getPosition: (w) => [w.lng, w.lat, w.alt],
     radiusUnits: 'pixels', // Fixed pixel size on screen across zoom levels
-    getRadius: 7,
-    getFillColor: [245, 158, 11, 255], // Luminous amber-gold center core
+    getRadius: (w: Waypoint) => (w === waypoints[0] ? 10 : 7),
+    getFillColor: (w: Waypoint) => (w === waypoints[0] ? [16, 185, 129, 255] : [245, 158, 11, 255]), // Luminous amber-gold center core
     stroked: true,
     getLineColor: [255, 255, 255, 255], // Crisp white outer ring
     getLineWidth: 2,
     lineWidthUnits: 'pixels',
+    updateTriggers: { getRadius: [waypoints], getFillColor: [waypoints] }
+  });
+
+  const labelsLayer = new TextLayer({
+    id: 'waypoint-labels', data: orderedWaypoints,
+    getPosition: (w: Waypoint) => [w.lng, w.lat, w.alt],
+    getText: (w: Waypoint, { index }: { index: number }) => (w === waypoints[0] ? 'START' : String(index + 1)),
+    getSize: 13, fontWeight: 'bold', getColor: [255, 255, 255, 255],
+    getPixelOffset: [0, -18],
+    background: true, backgroundPadding: [4, 2], getBackgroundColor: (w: Waypoint) => (w === waypoints[0] ? [6, 95, 70, 220] : [18, 12, 8, 180]),
   });
 
   return (
@@ -122,7 +133,7 @@ const handleMapClick = (info: any) => {
       <DeckGL
         viewState={viewState}
         controller={true}
-        layers={[dropLinesLayer, polygonLayer, flightPathLayer, markersLayer]}
+        layers={[dropLinesLayer, polygonLayer, flightPathLayer, markersLayer, labelsLayer]}
         onClick={handleMapClick}
         getCursor={() => (user?.role === 'ADMIN' && !selectedMission ? 'crosshair' : 'default')}
         onViewStateChange={({ viewState: nextViewState }) => setViewState(nextViewState as MapViewState)}

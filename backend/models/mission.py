@@ -17,6 +17,7 @@ class Mission(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     status: Mapped[str] = mapped_column(String, default="ASSIGNED")
+    mission_type: Mapped[str] = mapped_column(String, default="AREA")
 
     # Flight index
     horizontal_speed: Mapped[float] = mapped_column(Float, default=10.0)

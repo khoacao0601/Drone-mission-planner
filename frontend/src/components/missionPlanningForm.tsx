@@ -1,23 +1,35 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
-import React, { useState } from 'react';
-import { useMissionStore } from '../store/useMissionStore';
-import { missionAPI } from '../services/api';
-import type { MissionPlanningFormProps } from '../types/missions';
+import React, { useState } from "react";
+import { useMissionStore } from "../store/useMissionStore";
+import { missionAPI } from "../services/api";
+import type { MissionPlanningFormProps } from "../types/missions";
 
-export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMissionCreated }) => {
-
-  const { waypoints, clearWaypoint, altitude, setAltitude } = useMissionStore();
-  const [name, setName] = useState('');
+export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
+  onMissionCreated,
+}) => {
+  const {
+    waypoints,
+    clearWaypoint,
+    altitude,
+    setAltitude,
+    missionType,
+    setMissionType,
+  } = useMissionStore();
+  const [name, setName] = useState("");
   const [pilotId, setPilotId] = useState<number | null>(2);
   const [speed, setSpeed] = useState<number>(15);
   const [isSaving, setIsSaving] = useState(false);
 
   // Admin saves mission
   const handleSave = async (e: React.FormEvent) => {
+    const minWaypoints = missionType === "AREA" ? 3 : 2;
+
     e.preventDefault();
-    if (!name || waypoints.length < 2) {
-      alert('Please enter mission name and select at least 2 waypoints on the map.');
+    if (!name || waypoints.length < minWaypoints) {
+      alert(
+        `Please enter mission name and select at least ${minWaypoints} waypoints on the map.`,
+      );
       return;
     }
 
@@ -27,28 +39,31 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
       await missionAPI.createMission({
         name,
         horizontal_speed: speed,
-        altitude_mode: 'RELATIVE_TO_TAKEOFF',
+        altitude_mode: "RELATIVE_TO_TAKEOFF",
         flight_altitude: altitude,
         assigned_to_id: pilotId,
         waypoints: waypoints,
+        mission_type: missionType,
       });
 
-      setName('');
+      setName("");
       setSpeed(15);
       clearWaypoint();
       onMissionCreated();
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
-    }
-    finally {
+    } finally {
       setIsSaving(false);
     }
   };
 
-
   return (
-    <form onSubmit={(e) => { void handleSave(e); }} className="space-y-3 border-b border-amber-500/30 pb-3.5">
+    <form
+      onSubmit={(e) => {
+        void handleSave(e);
+      }}
+      className="space-y-3 border-b border-amber-500/30 pb-3.5"
+    >
       <div className="flex justify-between items-center">
         <span className="text-[11px] font-bold text-stone-200 uppercase tracking-wide">
           Route Planning
@@ -56,6 +71,32 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
         <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/60 shadow-sm">
           {waypoints.length} WAYPOINTS
         </span>
+      </div>
+
+      {/* Row 2: Flight Mode Selector (Full width 2-column grid) */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => setMissionType("AREA")}
+          className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
+            missionType === "AREA"
+              ? "bg-amber-500/20 text-amber-300 border-amber-400 shadow-sm"
+              : "bg-[#0a0705]/45 text-stone-400 border-stone-700/80 hover:text-stone-200"
+          }`}
+        >
+          Area Patrol
+        </button>
+        <button
+          type="button"
+          onClick={() => setMissionType("LINEAR")}
+          className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
+            missionType === "LINEAR"
+              ? "bg-amber-500/20 text-amber-300 border-amber-400 shadow-sm"
+              : "bg-[#0a0705]/45 text-stone-400 border-stone-700/80 hover:text-stone-200"
+          }`}
+        >
+          Linear Route
+        </button>
       </div>
 
       {/* Mission Name Input */}
@@ -71,8 +112,10 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
       {/* Pilot Assignee Selection */}
       <div>
         <select
-          value={pilotId || ''}
-          onChange={(e) => setPilotId(e.target.value ? Number(e.target.value) : null)}
+          value={pilotId || ""}
+          onChange={(e) =>
+            setPilotId(e.target.value ? Number(e.target.value) : null)
+          }
           className="w-full bg-[#0a0705]/45 p-2 rounded-lg border border-stone-700/80 focus:border-amber-400 text-stone-100 outline-none transition cursor-pointer"
         >
           <option value="">Unassigned (Open Mission)</option>
@@ -85,8 +128,19 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
       <div className="space-y-1.5 bg-[#0a0705]/35 p-2.5 rounded-lg border border-stone-800/80">
         <div className="flex justify-between items-center text-stone-200 text-[11px]">
           <span className="flex items-center gap-1 font-medium">
-            <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            <svg
+              className="w-3.5 h-3.5 text-amber-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 10l7-7m0 0l7 7m-7-7v18"
+              />
             </svg>
             Flight Altitude:
           </span>
@@ -109,8 +163,19 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
       <div className="space-y-1.5 bg-[#0a0705]/35 p-2.5 rounded-lg border border-stone-800/80">
         <div className="flex justify-between items-center text-stone-200 text-[11px]">
           <span className="flex items-center gap-1 font-medium">
-            <svg className="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <svg
+              className="w-3.5 h-3.5 text-cyan-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
             </svg>
             Horizontal Speed:
           </span>
@@ -137,7 +202,7 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
           disabled={isSaving}
           className="flex-1 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 active:scale-95 text-stone-950 py-2 rounded-lg font-bold tracking-wide shadow-lg shadow-amber-600/30 border border-amber-400/50 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSaving ? 'Saving...' : 'Save Route'}
+          {isSaving ? "Saving..." : "Save Route"}
         </button>
         <button
           type="button"
@@ -149,6 +214,5 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({ onMiss
         </button>
       </div>
     </form>
-  )
-}
-
+  );
+};

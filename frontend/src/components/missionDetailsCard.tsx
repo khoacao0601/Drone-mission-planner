@@ -52,7 +52,12 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
       <div className="bg-[#0a0705]/50 p-3 rounded-lg border border-amber-500/30 space-y-2">
         <div className="flex justify-between items-center gap-2">
           <span className="font-bold text-sm text-white">{mission.name}</span>
-          <StatusBadge status={mission.status} />
+          <div className="flex items-center gap-1.5">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40">
+              {mission.mission_type}
+            </span>
+            <StatusBadge status={mission.status} />
+          </div>
         </div>
         <div className="text-[10px] font-sans text-stone-400">
           Created: {formatDateTime(mission.created_at)}
@@ -107,8 +112,9 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
             Area:
           </span>
           <span className="font-semibold text-white tabular-nums">
-            {mission.waypoints.length >= 3 &&
-              Math.round(areaSqMeters).toLocaleString() + " m²"}
+            {mission.mission_type === "AREA" && mission.waypoints.length >= 3
+              ? `${Math.round(areaSqMeters).toLocaleString()} m²`
+              : "N/A"}
           </span>
         </div>
 

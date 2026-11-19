@@ -62,152 +62,156 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
       onSubmit={(e) => {
         void handleSave(e);
       }}
-      className="space-y-3 border-b border-amber-500/30 pb-3.5"
+      className="space-y-3 border-b border-[#2e333d] pb-4"
     >
-      <div className="flex justify-between items-center">
-        <span className="text-[11px] font-bold text-stone-200 uppercase tracking-wide">
-          Route Planning
+      {/* 1. Segmented Flight Mode Selector */}
+      <div className="space-y-1">
+        <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider">
+          Route Mode
         </span>
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-500/60 shadow-sm">
-          {waypoints.length} WAYPOINTS
-        </span>
+        <div className="grid grid-cols-2 gap-1.5 bg-[#12141a] p-1 rounded-lg border border-[#282c35]">
+          <button
+            type="button"
+            onClick={() => setMissionType("AREA")}
+            className={`py-1.5 px-2 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+              missionType === "AREA"
+                ? "bg-[#2b85e4] text-white shadow-sm"
+                : "text-[#9ca3af] hover:text-white"
+            }`}
+          >
+            Area Patrol
+          </button>
+          <button
+            type="button"
+            onClick={() => setMissionType("LINEAR")}
+            className={`py-1.5 px-2 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+              missionType === "LINEAR"
+                ? "bg-[#2b85e4] text-white shadow-sm"
+                : "text-[#9ca3af] hover:text-white"
+            }`}
+          >
+            Linear Route
+          </button>
+        </div>
       </div>
 
-      {/* Row 2: Flight Mode Selector (Full width 2-column grid) */}
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => setMissionType("AREA")}
-          className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
-            missionType === "AREA"
-              ? "bg-amber-500/20 text-amber-300 border-amber-400 shadow-sm"
-              : "bg-[#0a0705]/45 text-stone-400 border-stone-700/80 hover:text-stone-200"
-          }`}
-        >
-          Area Patrol
-        </button>
-        <button
-          type="button"
-          onClick={() => setMissionType("LINEAR")}
-          className={`py-1.5 px-2 rounded-lg text-[11px] font-bold border transition cursor-pointer ${
-            missionType === "LINEAR"
-              ? "bg-amber-500/20 text-amber-300 border-amber-400 shadow-sm"
-              : "bg-[#0a0705]/45 text-stone-400 border-stone-700/80 hover:text-stone-200"
-          }`}
-        >
-          Linear Route
-        </button>
+      {/* 2. Two-Column Row: Mission Name & Assign Pilot */}
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="space-y-1">
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-[#9ca3af]">
+            Mission Name
+          </label>
+          <input
+            placeholder="e.g. Survey Beta"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full bg-[#12141a] px-2.5 py-1.5 rounded-lg border border-[#2e333d] focus:border-[#2b85e4] text-[#e5e7eb] placeholder-[#6b7280] outline-none transition"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-[#9ca3af]">
+            Assign Pilot
+          </label>
+          <select
+            value={pilotId || ""}
+            onChange={(e) =>
+              setPilotId(e.target.value ? Number(e.target.value) : null)
+            }
+            className="w-full bg-[#12141a] px-2 py-1.5 rounded-lg border border-[#2e333d] focus:border-[#2b85e4] text-[#d1d5db] outline-none transition cursor-pointer"
+          >
+            <option value="">Unassigned</option>
+            <option value="2">pilot1@flyby.com</option>
+            <option value="3">pilot2@flyby.com</option>
+          </select>
+        </div>
       </div>
 
-      {/* Mission Name Input */}
-      <div>
-        <input
-          placeholder="Enter Mission Name..."
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full bg-[#0a0705]/45 p-2 rounded-lg border border-stone-700/80 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 text-white placeholder-stone-500 outline-none transition"
-        />
-      </div>
-
-      {/* Pilot Assignee Selection */}
-      <div>
-        <select
-          value={pilotId || ""}
-          onChange={(e) =>
-            setPilotId(e.target.value ? Number(e.target.value) : null)
-          }
-          className="w-full bg-[#0a0705]/45 p-2 rounded-lg border border-stone-700/80 focus:border-amber-400 text-stone-100 outline-none transition cursor-pointer"
-        >
-          <option value="">Unassigned (Open Mission)</option>
-          <option value="2">Pilot 1 (pilot1@flyby.com)</option>
-          <option value="3">Pilot 2 (pilot2@flyby.com)</option>
-        </select>
-      </div>
-
-      {/* Flight Altitude Range Slider */}
-      <div className="space-y-1.5 bg-[#0a0705]/35 p-2.5 rounded-lg border border-stone-800/80">
-        <div className="flex justify-between items-center text-stone-200 text-[11px]">
-          <span className="flex items-center gap-1 font-medium">
-            <svg
-              className="w-3.5 h-3.5 text-amber-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 10l7-7m0 0l7 7m-7-7v18"
-              />
-            </svg>
-            Flight Altitude:
+      {/* 3. Flight Altitude Control with DJI-style Stepper Buttons (-10 / +10) */}
+      <div className="space-y-2 bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
+        <div className="flex justify-between items-center text-[11px]">
+          <span className="text-[#d1d5db] font-medium">
+            Flight Altitude (ASL)
           </span>
-          <span className="font-mono font-bold text-amber-400 bg-amber-400/15 px-2 py-0.5 rounded border border-amber-400/50 shadow-sm">
-            {altitude}m ASL
+          <span className="font-mono font-bold text-[#60a5fa] bg-[#2b85e4]/15 px-2 py-0.5 rounded border border-[#2b85e4]/30">
+            {altitude} m
           </span>
         </div>
-        <input
-          type="range"
-          min="20"
-          max="300"
-          step="10"
-          value={altitude}
-          onChange={(e) => setAltitude(Number(e.target.value))}
-          className="w-full accent-amber-400 cursor-pointer h-1.5 bg-stone-800 rounded-lg"
-        />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setAltitude(Math.max(20, altitude - 10))}
+            className="px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[10px] font-mono text-[#d1d5db] cursor-pointer"
+          >
+            -10
+          </button>
+          <input
+            type="range"
+            min="20"
+            max="300"
+            step="10"
+            value={altitude}
+            onChange={(e) => setAltitude(Number(e.target.value))}
+            className="flex-1 accent-[#2b85e4] cursor-pointer h-1.5 bg-[#2a2e39] rounded-lg"
+          />
+          <button
+            type="button"
+            onClick={() => setAltitude(Math.min(300, altitude + 10))}
+            className="px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[10px] font-mono text-[#d1d5db] cursor-pointer"
+          >
+            +10
+          </button>
+        </div>
       </div>
 
-      {/* Horizontal Speed Range Slider */}
-      <div className="space-y-1.5 bg-[#0a0705]/35 p-2.5 rounded-lg border border-stone-800/80">
-        <div className="flex justify-between items-center text-stone-200 text-[11px]">
-          <span className="flex items-center gap-1 font-medium">
-            <svg
-              className="w-3.5 h-3.5 text-cyan-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-            Horizontal Speed:
-          </span>
-          {/* Display speed in m/s and km/h */}
-          <span className="font-mono font-bold text-cyan-400 bg-cyan-400/15 px-2 py-0.5 rounded border border-cyan-400/50 shadow-sm">
+      {/* 4. Horizontal Speed Control with Stepper Buttons (-1 / +1) */}
+      <div className="space-y-2 bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
+        <div className="flex justify-between items-center text-[11px]">
+          <span className="text-[#d1d5db] font-medium">Horizontal Speed</span>
+          <span className="font-mono font-bold text-[#38bdf8] bg-[#38bdf8]/15 px-2 py-0.5 rounded border border-[#38bdf8]/30">
             {speed} m/s ({Math.round(speed * 3.6)} km/h)
           </span>
         </div>
-        <input
-          type="range"
-          min="2"
-          max="20"
-          step="1"
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-          className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-stone-800 rounded-lg"
-        />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSpeed(Math.max(2, speed - 1))}
+            className="px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[10px] font-mono text-[#d1d5db] cursor-pointer"
+          >
+            -1
+          </button>
+          <input
+            type="range"
+            min="2"
+            max="20"
+            step="1"
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="flex-1 accent-[#38bdf8] cursor-pointer h-1.5 bg-[#2a2e39] rounded-lg"
+          />
+          <button
+            type="button"
+            onClick={() => setSpeed(Math.min(20, speed + 1))}
+            className="px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[10px] font-mono text-[#d1d5db] cursor-pointer"
+          >
+            +1
+          </button>
+        </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* 5. Action Buttons */}
       <div className="flex gap-2 pt-1">
         <button
           type="submit"
           disabled={isSaving}
-          className="flex-1 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 active:scale-95 text-stone-950 py-2 rounded-lg font-bold tracking-wide shadow-lg shadow-amber-600/30 border border-amber-400/50 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-[#2b85e4] hover:bg-[#3b93f0] active:scale-95 text-white py-2 rounded-lg font-semibold shadow-sm transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? "Saving..." : "Save Route"}
         </button>
         <button
           type="button"
           onClick={clearWaypoint}
-          className="bg-stone-800/60 hover:bg-stone-700/80 active:scale-95 text-stone-200 px-3.5 py-2 rounded-lg border border-stone-700/60 font-medium transition cursor-pointer"
+          className="bg-[#232730] hover:bg-[#2e333d] active:scale-95 text-[#d1d5db] px-3.5 py-2 rounded-lg border border-[#343946] font-medium transition cursor-pointer"
           title="Clear active draft waypoints"
         >
           Clear

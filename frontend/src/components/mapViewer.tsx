@@ -51,7 +51,7 @@ const sortWaypointsByAngle = (points: Waypoint[]): Waypoint[] => {
 
 export const MapViewer: React.FC = () => {
   const user = useAuthStore((s) => s.user);
-  const { waypoints, addWayPoint, altitude, selectedMission } =
+  const { waypoints, addWayPoint, altitude, selectedMission, missionType } =
     useMissionStore();
   const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW);
 
@@ -83,19 +83,29 @@ export const MapViewer: React.FC = () => {
   };
 
   // Automatically order waypoints around perimeter regardless of user click sequence
-  const orderedWaypoints = sortWaypointsByAngle(waypoints);
+  const activeMissionType = selectedMission
+    ? selectedMission.mission_type
+    : missionType;
+  const isAreaMission = activeMissionType === "AREA";
+
+  const orderedWaypoints = isAreaMission
+    ? sortWaypointsByAngle(waypoints)
+    : waypoints;
   const coordinates = orderedWaypoints.map((w) => [w.lng, w.lat, w.alt]);
 
-  // 1. Semi-transparent area fill (>= 3 points)
+  // 1. Semi-transparent area fill (>= 3 points, AREA only)
   const polygonLayer = new PolygonLayer({
     id: "area-fill",
-    data: orderedWaypoints.length >= 3 ? [{ polygon: coordinates }] : [],
+    data:
+      isAreaMission && orderedWaypoints.length >= 3
+        ? [{ polygon: coordinates }]
+        : [],
     getPolygon: (d: any) => d.polygon,
     getFillColor: [0, 240, 255, 35],
     stroked: false, // Disable default black outline of Deck.gl PolygonLayer
   });
 
-  // 2. Vertical drop lines down to the ground
+  // 2. Vertical drop lines down to the ground (both AREA and LINEAR)
   const dropLinesLayer = new LineLayer({
     id: "drop-lines",
     data: orderedWaypoints,
@@ -108,17 +118,20 @@ export const MapViewer: React.FC = () => {
   });
 
   // 3. 3D Flight path trajectory: Close loop around perimeter for complete circuit
-  const closedFlightPath =
-    orderedWaypoints.length >= 3
+  const flightPathCoordinates =
+    isAreaMission && orderedWaypoints.length >= 3
       ? [...coordinates, coordinates[0]]
       : coordinates;
 
   const flightPathLayer = new PathLayer({
     id: "flight-path",
-    data: orderedWaypoints.length >= 2 ? [{ path: closedFlightPath }] : [],
+    data: orderedWaypoints.length >= 2 ? [{ path: flightPathCoordinates }] : [],
     getPath: (d: any) => d.path,
-    getColor: [0, 240, 255],
-    getWidth: 4,
+    getColor: isAreaMission ? [0, 240, 255, 220] : [0, 240, 255, 255],
+    widthUnits: "pixels",
+    getWidth: isAreaMission ? 3.5 : 8.5,
+    capRounded: true,
+    jointRounded: true,
   });
 
   // 4. Waypoint markers: Tactical high-visibility amber-gold bullseye points
@@ -141,8 +154,11 @@ export const MapViewer: React.FC = () => {
     id: "waypoint-labels",
     data: orderedWaypoints,
     getPosition: (w: Waypoint) => [w.lng, w.lat, w.alt],
-    getText: (w: Waypoint, { index }: { index: number }) =>
-      w === waypoints[0] ? "START" : String(index + 1),
+    getText: (w: Waypoint, { index }: { index: number }) => {
+      if (w === waypoints[0]) return "START";
+      if (!isAreaMission && index === orderedWaypoints.length - 1) return "END";
+      return String(index + 1);
+    },
     getSize: 13,
     fontWeight: "bold",
     getColor: [255, 255, 255, 255],
@@ -151,7 +167,7 @@ export const MapViewer: React.FC = () => {
     backgroundPadding: [4, 2],
     getBackgroundColor: (w: Waypoint) =>
       w === waypoints[0] ? [6, 95, 70, 220] : [18, 12, 8, 180],
-    updateTriggers: { getText: [waypoints], getBackgroundColor: [waypoints] }
+    updateTriggers: { getText: [waypoints], getBackgroundColor: [waypoints] },
   });
 
   return (

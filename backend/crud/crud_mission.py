@@ -28,7 +28,8 @@ def create_mission(db: Session, mission: MissionCreate, created_by_id: int):
         flight_altitude=mission.flight_altitude,
         waypoints=mission.waypoints,
         assigned_to_id=mission.assigned_to_id,
-        created_by_id=created_by_id 
+        created_by_id=created_by_id,
+        mission_type=mission.mission_type.value
     )
     db.add(db_mission)
     db.commit()

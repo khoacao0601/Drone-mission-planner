@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
 import { create } from 'zustand';
-import type { Mission, Waypoint } from '../types/missions';
+import type { Mission, Waypoint, MissionType } from '../types/missions';
 
 interface MissionStore {
     waypoints: Waypoint[];
@@ -11,6 +11,8 @@ interface MissionStore {
     addWayPoint: ( point: Waypoint ) => void;
     clearWaypoint: () => void;
     setSelectedMission: (mission: Mission | null) => void;
+    missionType: MissionType;
+    setMissionType: (type: MissionType) => void;
 }
 
 
@@ -19,7 +21,9 @@ export const useMissionStore = create<MissionStore>(
         waypoints: [],
         selectedMission: null,
         altitude: 100,
-
+        missionType: 'AREA',
+        
+        setMissionType: (type) => set({ missionType: type }),
         setAltitude: (alt) => set((state) => ({
             altitude: alt,
             waypoints: state.waypoints.map((w) => ({ ...w, alt })),
@@ -35,6 +39,7 @@ export const useMissionStore = create<MissionStore>(
         setSelectedMission: (mission) => set({
             selectedMission: mission,
             waypoints: mission ? mission.waypoints : [],
+            missionType: mission ? mission.mission_type : 'AREA',
         })
     })
 )

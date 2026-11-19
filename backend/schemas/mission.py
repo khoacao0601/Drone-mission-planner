@@ -13,6 +13,9 @@ class MissionStatus(str, Enum):
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
 
+class MissionType(str, Enum):
+    AREA = "AREA"
+    LINEAR = "LINEAR"
 
 # Data for new Mission
 class MissionCreate(BaseModel):
@@ -23,6 +26,7 @@ class MissionCreate(BaseModel):
     flight_altitude: float = 50.0
     waypoints: list = []
     assigned_to_id: Optional[int] = None
+    mission_type: MissionType = MissionType.AREA
 
 
 # Return Data for Web
@@ -39,9 +43,12 @@ class MissionResponse(BaseModel):
     assigned_to_id: Optional[int] = None
     assigned_to: Optional[UserResponse] = None
     created_at: datetime
+    mission_type: MissionType = MissionType.AREA
 
     # let Pydantic read data from SQLAlchemy Model
     model_config = {"from_attributes": True}
 
 class MissionStatusUpdate(BaseModel):
     status: MissionStatus
+
+

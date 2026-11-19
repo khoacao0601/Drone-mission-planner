@@ -23,6 +23,7 @@ export interface MissionCreate {
     flight_altitude: number;
     waypoints: Waypoint[];
     assigned_to_id?: number | null;
+    mission_type: MissionType
 }
 
 
@@ -40,6 +41,7 @@ export interface Mission {
     assigned_to_id?: number | null;
     assigned_to?: User | null;
     created_at: string;
+    mission_type: MissionType
 }
 
 //Mission details Card
@@ -66,3 +68,4 @@ export interface MissionListProps {
 
 //Mission Status Type
 export type MissionStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type MissionType = 'AREA' | 'LINEAR';

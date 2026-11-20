@@ -13,6 +13,8 @@ interface MissionStore {
     setSelectedMission: (mission: Mission | null) => void;
     missionType: MissionType;
     setMissionType: (type: MissionType) => void;
+    speed: number;
+    setSpeed: (speed: number) => void;
 }
 
 
@@ -21,9 +23,11 @@ export const useMissionStore = create<MissionStore>(
         waypoints: [],
         selectedMission: null,
         altitude: 100,
+        speed: 15,
         missionType: 'AREA',
         
         setMissionType: (type) => set({ missionType: type }),
+        setSpeed: (speed) => set({ speed }),
         setAltitude: (alt) => set((state) => ({
             altitude: alt,
             waypoints: state.waypoints.map((w) => ({ ...w, alt })),

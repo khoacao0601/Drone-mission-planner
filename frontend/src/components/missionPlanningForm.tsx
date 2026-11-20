@@ -15,10 +15,11 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
     setAltitude,
     missionType,
     setMissionType,
+    speed,
+    setSpeed,
   } = useMissionStore();
   const [name, setName] = useState("");
   const [pilotId, setPilotId] = useState<number | null>(2);
-  const [speed, setSpeed] = useState<number>(15);
   const [isSaving, setIsSaving] = useState(false);
 
   // Admin saves mission

@@ -26,13 +26,16 @@ export const Sidebar: React.FC = () => {
     setSelectedMission,
     selectedMission,
     missionType,
+    speed,
   } = useMissionStore();
 
   // Use selectedMission data if inspecting, otherwise use live draft waypoints
   const activeWaypoints = selectedMission
     ? selectedMission.waypoints
     : waypoints;
-  const activeSpeed = selectedMission ? selectedMission.horizontal_speed : 15;
+  const activeSpeed = selectedMission
+    ? selectedMission.horizontal_speed
+    : speed;
   const activeType = selectedMission
     ? selectedMission.mission_type
     : missionType;

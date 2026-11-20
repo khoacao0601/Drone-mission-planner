@@ -92,6 +92,11 @@ export const MapViewer: React.FC = () => {
     ? sortWaypointsByAngle(waypoints)
     : waypoints;
   const coordinates = orderedWaypoints.map((w) => [w.lng, w.lat, w.alt]);
+  const displayLat = orderedWaypoints[0]?.lat ?? viewState.latitude;
+  const displayLng = orderedWaypoints[0]?.lng ?? viewState.longitude;
+  const displayAlt = selectedMission
+    ? selectedMission.flight_altitude
+    : altitude;
 
   // 1. Semi-transparent area fill (>= 3 points, AREA only)
   const polygonLayer = new PolygonLayer({
@@ -172,6 +177,28 @@ export const MapViewer: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-slate-950">
+      {/* Top Map Telemetry Strip (Flyby Prototype UI Style) */}
+      <div className="absolute top-3 left-[408px] right-3 z-10 flex justify-between items-center bg-[#181a1f]/85 backdrop-blur-md border border-[#2e333d] px-3.5 py-1.5 rounded-lg text-[11px] font-mono text-[#9ca3af] select-none pointer-events-none shadow-lg">
+        <div className="flex items-center gap-4">
+          <span>
+            LAT:{" "}
+            <strong className="text-[#e5e7eb]">{displayLat.toFixed(4)}</strong>
+          </span>
+          <span>
+            LNG:{" "}
+            <strong className="text-[#e5e7eb]">{displayLng.toFixed(4)}</strong>
+          </span>
+          <span>
+            MODE: <strong className="text-[#60a5fa]">REL_TAKEOFF</strong>
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-[#38bdf8] font-semibold">
+            ALT: {displayAlt}m
+          </span>
+          <span>WGS 84</span>
+        </div>
+      </div>
       <DeckGL
         viewState={viewState}
         controller={true}

@@ -15,6 +15,8 @@ interface MissionStore {
     setMissionType: (type: MissionType) => void;
     speed: number;
     setSpeed: (speed: number) => void;
+    gridSpacing: number;
+    setGridSpacing: (spacing: number) => void;
 }
 
 
@@ -25,7 +27,11 @@ export const useMissionStore = create<MissionStore>(
         altitude: 100,
         speed: 15,
         missionType: 'AREA',
+        gridSpacing: 25,
         
+        setGridSpacing: (spacing) => set({ 
+            gridSpacing: spacing
+        }),
         setMissionType: (type) => set({ missionType: type }),
         setSpeed: (speed) => set({ speed }),
         setAltitude: (alt) => set((state) => ({

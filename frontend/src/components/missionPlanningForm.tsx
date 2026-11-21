@@ -17,6 +17,8 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
     setMissionType,
     speed,
     setSpeed,
+    gridSpacing,
+    setGridSpacing,
   } = useMissionStore();
   const [name, setName] = useState("");
   const [pilotId, setPilotId] = useState<number | null>(2);
@@ -199,6 +201,42 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
           </button>
         </div>
       </div>
+
+      {missionType === "AREA" && (
+        <div className="space-y-2 bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
+          <div className="flex justify-between items-center text-[11px]">
+            <span className="text-[#d1d5db] font-medium">Grid Spacing</span>
+            <span className="font-mono font-bold text-[#10b981] bg-[#10b981]/15 px-2 py-0.5 rounded border border-[#10b981]/30">
+              {gridSpacing} m
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setGridSpacing(Math.max(10, gridSpacing - 5))}
+              className="px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[10px] font-mono text-[#d1d5db] cursor-pointer"
+            >
+              -5
+            </button>
+            <input
+              type="range"
+              min="10"
+              max="80"
+              step="5"
+              value={gridSpacing}
+              onChange={(e) => setGridSpacing(Number(e.target.value))}
+              className="flex-1 accent-[#10b981] cursor-pointer h-1.5 bg-[#2a2e39] rounded-lg"
+            />
+            <button
+              type="button"
+              onClick={() => setGridSpacing(Math.min(80, gridSpacing + 5))}
+              className="px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[10px] font-mono text-[#d1d5db] cursor-pointer"
+            >
+              +5
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 5. Action Buttons */}
       <div className="flex gap-2 pt-1">

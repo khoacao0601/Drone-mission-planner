@@ -18,6 +18,13 @@ import { useMissionStore } from "../store/useMissionStore";
 import type { Waypoint } from "../types/missions";
 import type { MapViewState } from "deck.gl";
 
+import {
+  sortWaypointsByAngle,
+  generateSurveyGrid,
+  generateGridDots,
+  generateDirectionArrows,
+} from "../utils/generateGridforFlighPath";
+
 const INITIAL_VIEW = {
   longitude: -118.2437,
   latitude: 34.0522,
@@ -26,33 +33,28 @@ const INITIAL_VIEW = {
   bearing: -20,
 };
 
-// Helper: Normalize input waypoints by sorting them circularly around their centroid
-// This guarantees a clean convex perimeter polygon without self-intersecting hourglass shapes
-const sortWaypointsByAngle = (points: Waypoint[]): Waypoint[] => {
-  if (points.length < 3) return points;
-
-  // 1. Calculate centroid (center point) of all waypoints
-  const centerLng = points.reduce((sum, p) => sum + p.lng, 0) / points.length;
-  const centerLat = points.reduce((sum, p) => sum + p.lat, 0) / points.length;
-
-  // 2. Sort points by polar angle using Math.atan2
-  const sorted = [...points].sort((a, b) => {
-    const angleA = Math.atan2(a.lat - centerLat, a.lng - centerLng);
-    const angleB = Math.atan2(b.lat - centerLat, b.lng - centerLng);
-    return angleA - angleB;
-  });
-
-  const startIndex = sorted.indexOf(points[0]);
-  if (startIndex > 0) {
-    return [...sorted.slice(startIndex), ...sorted.slice(0, startIndex)];
-  }
-  return sorted;
+const getWaypointLabel = (
+  w: Waypoint,
+  index: number,
+  firstWaypoint: Waypoint | undefined,
+  totalCount: number,
+  isAreaMission: boolean,
+): string => {
+  if (w === firstWaypoint) return "START";
+  if (!isAreaMission && index === totalCount - 1) return "END";
+  return String(index + 1);
 };
 
 export const MapViewer: React.FC = () => {
   const user = useAuthStore((s) => s.user);
-  const { waypoints, addWayPoint, altitude, selectedMission, missionType } =
-    useMissionStore();
+  const {
+    waypoints,
+    addWayPoint,
+    altitude,
+    selectedMission,
+    missionType,
+    gridSpacing,
+  } = useMissionStore();
   const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW);
 
   useEffect(() => {
@@ -92,11 +94,35 @@ export const MapViewer: React.FC = () => {
     ? sortWaypointsByAngle(waypoints)
     : waypoints;
   const coordinates = orderedWaypoints.map((w) => [w.lng, w.lat, w.alt]);
+  const surveyGridWaypoints = isAreaMission
+    ? generateSurveyGrid(orderedWaypoints, gridSpacing)
+    : [];
+  const surveyGridCoordinates = surveyGridWaypoints.map((w) => [
+    w.lng,
+    w.lat,
+    w.alt,
+  ]);
+  const surveyDots = isAreaMission
+    ? generateGridDots(surveyGridWaypoints, gridSpacing * 0.6)
+    : [];
+  const surveyArrows = isAreaMission
+    ? generateDirectionArrows(surveyGridWaypoints)
+    : [];
   const displayLat = orderedWaypoints[0]?.lat ?? viewState.latitude;
   const displayLng = orderedWaypoints[0]?.lng ?? viewState.longitude;
   const displayAlt = selectedMission
     ? selectedMission.flight_altitude
     : altitude;
+  const surveyArrowsLayer = new PolygonLayer({
+    id: "survey-direction-arrows",
+    data: surveyArrows,
+    getPolygon: (d: any) => d,
+    getFillColor: [250, 204, 21, 255], // High-contrast tactical yellow/gold arrowhead
+    stroked: true,
+    getLineColor: [15, 23, 42, 255], // Dark slate outline so it pops on any satellite map
+    getLineWidth: 1.5,
+    lineWidthUnits: "pixels",
+  });
 
   // 1. Semi-transparent area fill (>= 3 points, AREA only)
   const polygonLayer = new PolygonLayer({
@@ -132,11 +158,33 @@ export const MapViewer: React.FC = () => {
     id: "flight-path",
     data: orderedWaypoints.length >= 2 ? [{ path: flightPathCoordinates }] : [],
     getPath: (d: any) => d.path,
-    getColor: isAreaMission ? [0, 240, 255, 220] : [0, 240, 255, 255],
+    getColor: isAreaMission ? [16, 185, 129, 255] : [0, 240, 255, 255],
     widthUnits: "pixels",
     getWidth: isAreaMission ? 3.5 : 8.5,
     capRounded: true,
     jointRounded: true,
+  });
+
+  // 3b. Internal Lawnmower Survey Grid Path (Blue zigzag inside AREA polygon)
+  const surveyGridLayer = new PathLayer({
+    id: "survey-grid-path",
+    data: surveyGridCoordinates.length >= 2 ? [{ path: surveyGridCoordinates }] : [],
+    getPath: (d: any) => d.path,
+    getColor: [37, 99, 235, 255], // Vibrant tactical blue
+    widthUnits: "pixels",
+    getWidth: 3.5,
+    capRounded: true,
+    jointRounded: true,
+  });
+
+  // 3c. White camera trigger dots along the blue survey lines
+  const surveyDotsLayer = new ScatterplotLayer({
+    id: "survey-grid-dots",
+    data: surveyDots,
+    getPosition: (w: Waypoint) => [w.lng, w.lat, w.alt],
+    radiusUnits: "pixels",
+    getRadius: 2.5,
+    getFillColor: [255, 255, 255, 230],
   });
 
   // 4. Waypoint markers: Tactical high-visibility amber-gold bullseye points
@@ -159,11 +207,14 @@ export const MapViewer: React.FC = () => {
     id: "waypoint-labels",
     data: orderedWaypoints,
     getPosition: (w: Waypoint) => [w.lng, w.lat, w.alt],
-    getText: (w: Waypoint, { index }: { index: number }) => {
-      if (w === waypoints[0]) return "START";
-      if (!isAreaMission && index === orderedWaypoints.length - 1) return "END";
-      return String(index + 1);
-    },
+    getText: (w: Waypoint, { index }: { index: number }) =>
+      getWaypointLabel(
+        w,
+        index,
+        waypoints[0],
+        orderedWaypoints.length,
+        isAreaMission,
+      ),
     getSize: 13,
     fontWeight: "bold",
     getColor: [255, 255, 255, 255],
@@ -206,8 +257,11 @@ export const MapViewer: React.FC = () => {
           dropLinesLayer,
           polygonLayer,
           flightPathLayer,
+          surveyGridLayer,
+          surveyDotsLayer,
           markersLayer,
           labelsLayer,
+          surveyArrowsLayer,
         ]}
         onClick={handleMapClick}
         getCursor={() =>

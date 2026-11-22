@@ -13,6 +13,7 @@ import { calculateDistanceMeters } from "../utils/calculateDistanceMeters";
 import { calculateEstimatedDuration } from "../utils/calculateETAduration";
 import { calculatePolygonArea } from "../utils/calculatePolygonArea";
 import { formatDistance, formatDuration } from "../utils/formatters";
+import { generateSurveyGrid } from "../utils/generateGridforFlighPath";
 
 export const Sidebar: React.FC = () => {
   const user = useAuthStore((s) => s.user);
@@ -27,6 +28,7 @@ export const Sidebar: React.FC = () => {
     selectedMission,
     missionType,
     speed,
+    gridSpacing,
   } = useMissionStore();
 
   // Use selectedMission data if inspecting, otherwise use live draft waypoints
@@ -40,7 +42,11 @@ export const Sidebar: React.FC = () => {
     ? selectedMission.mission_type
     : missionType;
 
-  const liveDistance = calculateDistanceMeters(activeWaypoints);
+  const effectivePath =
+    activeType === "AREA" && activeWaypoints.length >= 3
+      ? generateSurveyGrid(activeWaypoints, gridSpacing)
+      : activeWaypoints;
+  const liveDistance = calculateDistanceMeters(effectivePath);
   const liveDuration = calculateEstimatedDuration(liveDistance, activeSpeed);
   const liveArea =
     activeType === "AREA" && activeWaypoints.length >= 3

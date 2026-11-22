@@ -111,15 +111,13 @@ export const generateSurveyGrid = (
 
     if (intersectionsU.length >= 2) {
       const leftU = intersectionsU[0];
-      const rightU = intersectionsU[intersectionsU.length - 1];
+      const rightU = intersectionsU.at(-1) ?? leftU;
 
       // Row 0 starts near START (u = 0, which is on the leftU side) and flies toward Point 2 (rightU)
       if (rowIndex % 2 === 0) {
-        gridWaypoints.push(toLngLat(leftU, v));
-        gridWaypoints.push(toLngLat(rightU, v));
+        gridWaypoints.push(toLngLat(leftU, v), toLngLat(rightU, v));
       } else {
-        gridWaypoints.push(toLngLat(rightU, v));
-        gridWaypoints.push(toLngLat(leftU, v));
+        gridWaypoints.push(toLngLat(rightU, v), toLngLat(leftU, v));
       }
       rowIndex++;
     }

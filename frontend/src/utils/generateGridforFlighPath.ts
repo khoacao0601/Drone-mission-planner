@@ -22,6 +22,27 @@ export const sortWaypointsByAngle = (points: Waypoint[]): Waypoint[] => {
   return sorted;
 };
 
+// Find sorted horizontal intersections (u) of scanline 'v' with rotated polygon
+const findScanlineIntersections = (
+  rotatedPoly: { u: number; v: number }[],
+  v: number,
+): number[] => {
+  const intersectionsU: number[] = [];
+
+  for (let i = 0; i < rotatedPoly.length; i++) {
+    const p1 = rotatedPoly[i];
+    const p2 = rotatedPoly[(i + 1) % rotatedPoly.length];
+    const isCrossing = (p1.v <= v && p2.v > v) || (p2.v <= v && p1.v > v);
+
+    if (isCrossing) {
+      const ratio = (v - p1.v) / (p2.v - p1.v);
+      intersectionsU.push(p1.u + ratio * (p2.u - p1.u));
+    }
+  }
+
+  return intersectionsU.sort((a, b) => a - b);
+};
+
 // 2. Generate Edge-Aligned Lawnmower flight path (parallel to edge START -> 2)
 export const generateSurveyGrid = (
   waypoints: Waypoint[],
@@ -86,22 +107,7 @@ export const generateSurveyGrid = (
   // Sweep outward from START edge (d = stepMeters * 0.5 up to maxDistV)
   for (let d = stepMeters * 0.5; d < maxDistV; d += stepMeters) {
     const v = d * sweepDir;
-    const intersectionsU: number[] = [];
-
-    for (let i = 0; i < rotatedPoly.length; i++) {
-      const p1 = rotatedPoly[i];
-      const p2 = rotatedPoly[(i + 1) % rotatedPoly.length];
-
-      const isCrossing = (p1.v <= v && p2.v > v) || (p2.v <= v && p1.v > v);
-
-      if (isCrossing) {
-        const ratio = (v - p1.v) / (p2.v - p1.v);
-        const intersectU = p1.u + ratio * (p2.u - p1.u);
-        intersectionsU.push(intersectU);
-      }
-    }
-
-    intersectionsU.sort((a, b) => a - b);
+    const intersectionsU = findScanlineIntersections(rotatedPoly, v);
 
     if (intersectionsU.length >= 2) {
       const leftU = intersectionsU[0];

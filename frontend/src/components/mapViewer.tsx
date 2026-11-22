@@ -33,6 +33,18 @@ const INITIAL_VIEW = {
   bearing: -20,
 };
 
+const getWaypointLabel = (
+  w: Waypoint,
+  index: number,
+  firstWaypoint: Waypoint | undefined,
+  totalCount: number,
+  isAreaMission: boolean,
+): string => {
+  if (w === firstWaypoint) return "START";
+  if (!isAreaMission && index === totalCount - 1) return "END";
+  return String(index + 1);
+};
+
 export const MapViewer: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const {
@@ -82,29 +94,25 @@ export const MapViewer: React.FC = () => {
     ? sortWaypointsByAngle(waypoints)
     : waypoints;
   const coordinates = orderedWaypoints.map((w) => [w.lng, w.lat, w.alt]);
-  const surveyGridWaypoints =
-    isAreaMission && orderedWaypoints.length >= 3
-      ? generateSurveyGrid(orderedWaypoints, gridSpacing)
-      : [];
+  const surveyGridWaypoints = isAreaMission
+    ? generateSurveyGrid(orderedWaypoints, gridSpacing)
+    : [];
   const surveyGridCoordinates = surveyGridWaypoints.map((w) => [
     w.lng,
     w.lat,
     w.alt,
   ]);
-  const surveyDots =
-    isAreaMission && surveyGridWaypoints.length >= 2
-      ? generateGridDots(surveyGridWaypoints, gridSpacing * 0.6)
-      : [];
+  const surveyDots = isAreaMission
+    ? generateGridDots(surveyGridWaypoints, gridSpacing * 0.6)
+    : [];
+  const surveyArrows = isAreaMission
+    ? generateDirectionArrows(surveyGridWaypoints)
+    : [];
   const displayLat = orderedWaypoints[0]?.lat ?? viewState.latitude;
   const displayLng = orderedWaypoints[0]?.lng ?? viewState.longitude;
   const displayAlt = selectedMission
     ? selectedMission.flight_altitude
     : altitude;
-  const surveyArrows =
-    isAreaMission && surveyGridWaypoints.length >= 3
-      ? generateDirectionArrows(surveyGridWaypoints)
-      : [];
-
   const surveyArrowsLayer = new PolygonLayer({
     id: "survey-direction-arrows",
     data: surveyArrows,
@@ -160,10 +168,7 @@ export const MapViewer: React.FC = () => {
   // 3b. Internal Lawnmower Survey Grid Path (Blue zigzag inside AREA polygon)
   const surveyGridLayer = new PathLayer({
     id: "survey-grid-path",
-    data:
-      isAreaMission && surveyGridCoordinates.length >= 2
-        ? [{ path: surveyGridCoordinates }]
-        : [],
+    data: surveyGridCoordinates.length >= 2 ? [{ path: surveyGridCoordinates }] : [],
     getPath: (d: any) => d.path,
     getColor: [37, 99, 235, 255], // Vibrant tactical blue
     widthUnits: "pixels",
@@ -202,11 +207,14 @@ export const MapViewer: React.FC = () => {
     id: "waypoint-labels",
     data: orderedWaypoints,
     getPosition: (w: Waypoint) => [w.lng, w.lat, w.alt],
-    getText: (w: Waypoint, { index }: { index: number }) => {
-      if (w === waypoints[0]) return "START";
-      if (!isAreaMission && index === orderedWaypoints.length - 1) return "END";
-      return String(index + 1);
-    },
+    getText: (w: Waypoint, { index }: { index: number }) =>
+      getWaypointLabel(
+        w,
+        index,
+        waypoints[0],
+        orderedWaypoints.length,
+        isAreaMission,
+      ),
     getSize: 13,
     fontWeight: "bold",
     getColor: [255, 255, 255, 255],

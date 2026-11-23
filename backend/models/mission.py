@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.user import User
+from models.drone import Drone
 
 from core.database import Base
 
@@ -33,5 +34,8 @@ class Mission(Base):
 
     #JOIN get details from Pilot
     assigned_to: Mapped[Optional[User]] = relationship("User", foreign_keys=[assigned_to_id], lazy="joined")
+
+    drone_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("drones.id"), nullable=True)
+    drone: Mapped[Optional[Drone]] = relationship("Drone", foreign_keys=[drone_id], lazy="joined")
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())

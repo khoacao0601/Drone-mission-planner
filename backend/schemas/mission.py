@@ -4,6 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, List
 from schemas.user import UserResponse
+from schemas.drone import DroneResponse
 from enum import Enum
 
 # Enum
@@ -27,6 +28,7 @@ class MissionCreate(BaseModel):
     waypoints: list = []
     assigned_to_id: Optional[int] = None
     mission_type: MissionType = MissionType.AREA
+    drone_id: Optional[int] = None
 
 
 # Return Data for Web
@@ -44,6 +46,8 @@ class MissionResponse(BaseModel):
     assigned_to: Optional[UserResponse] = None
     created_at: datetime
     mission_type: MissionType = MissionType.AREA
+    drone_id: Optional[int] = None
+    drone: Optional[DroneResponse] = None
 
     # let Pydantic read data from SQLAlchemy Model
     model_config = {"from_attributes": True}

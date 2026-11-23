@@ -5,6 +5,7 @@ from core.database import Base, SessionLocal, engine
 from core.security import hash_pass
 from models.user import User
 from models.mission import Mission
+from models.drone import Drone
 
 def seed_data():
 
@@ -21,6 +22,13 @@ def seed_data():
         {"email": "pilot2@flyby.com", "password": pilot_default, "role": "PILOT"},
     ]
 
+    test_drones = [
+        {"name": "Flyby F-11 Alpha", "model": "Flyby F-11 Tactical", "serial_number": "FB-AL-001", "status": "AVAILABLE", "battery_level": 100},
+        {"name": "Flyby F-11 Bravo", "model": "Flyby F-11 Tactical", "serial_number": "FB-BR-002", "status": "AVAILABLE", "battery_level": 92},
+        {"name": "Flyby Recon X1", "model": "Flyby Recon Survey", "serial_number": "FB-RECO-003", "status": "AVAILABLE", "battery_level": 85},
+        {"name": "Flyby Heavy Lifter", "model": "Flyby Cargo H1", "serial_number": "FB-HEA-004", "status": "MAINTENANCE", "battery_level": 24}
+    ]
+
     try:
         for u in test_users:
             existing_user = db.query(User).filter(User.email == u["email"]).first()
@@ -34,8 +42,26 @@ def seed_data():
                 print(f"Created {u['role']}: {u['email']} / {u['password']}")
             else:
                 print(f"User {u['email']} already exists!")
+
+        for d in test_drones:
+                existing_drone = db.query(Drone).filter(Drone.serial_number == d["serial_number"]).first()
+                if not existing_drone:
+                    new_drone = Drone(
+                        name=d["name"],
+                        model=d["model"],
+                        serial_number=d["serial_number"],
+                        status=d["status"],
+                        battery_level=d["battery_level"]
+                    )
+                    db.add(new_drone)
+                    print(f"Created drone {d['name']}: {d['model']}")
+                else:
+                    print(f"Drone {d['serial_number']} already exists!")
+                db.commit()
+                print("-> Seeding drones completed successfully!")
         db.commit()
-        print("-> Seeding completed successfully!")
+    
+        print("-> Seeding users and drones completed successfully!")
     finally:
         db.close()
         

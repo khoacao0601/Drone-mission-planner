@@ -3,7 +3,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from crud import crud_mission
+from crud import crud_mission, crud_drone
 from models.user import User
 from schemas.mission import MissionCreate, MissionStatus
 
@@ -14,6 +14,18 @@ PILOT_ALLOWED_TRANSITIONS = {
 
 # Create Mission
 def create_new_mission( db: Session, mission: MissionCreate, current_user: User):
+    drone = crud_drone.get_drone_by_id(db, mission.drone_id)
+    if not drone:
+        raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Drone not found!"
+            )
+    if drone.status != "AVAILABLE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Selected drone is not available!"
+        )
+    crud_drone.update_drone_status(db, drone, "IN_MISSION")
     return crud_mission.create_mission( db=db, mission=mission, created_by_id=current_user.id)
 
 # Get mission with RBAC filtering
@@ -50,6 +62,10 @@ def delete_mission( db: Session, mission_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Mission was not found!"
         )
+    if mission.drone_id is not None:
+        drone = crud_drone.get_drone_by_id(db, mission.drone_id)
+        if drone:
+            crud_drone.update_drone_status(db, drone, "AVAILABLE")
 
     crud_mission.delete_mission(db=db, db_mission=mission)
     return { "message": "Mission deleted successfully!"}
@@ -65,4 +81,10 @@ def update_mission_status(db: Session, mission_id: int, new_status: MissionStatu
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot update status"
             )
+    if new_status.value in ["COMPLETED", "CANCELLED"]:
+        if mission.drone_id is not None:
+            drone = crud_drone.get_drone_by_id(db, mission.drone_id)
+            if drone:
+                crud_drone.update_drone_status(db, drone, "AVAILABLE")
+            
     return crud_mission.update_mission_status(db=db, db_mission=mission, new_status=new_status.value)

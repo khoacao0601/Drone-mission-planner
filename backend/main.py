@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.v1.auth import router as auth_router
 from api.v1.mission import router as mission_router
+from api.v1.drone import router as drone_router
 from core.config import settings
 from core.database import Base, engine
 
@@ -22,8 +23,10 @@ app.add_middleware(
 )
 
 # Add Router Auth to system
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(mission_router, prefix="/api/v1")
+API_V1_PREFIX = "/api/v1"
+app.include_router(auth_router, prefix=API_V1_PREFIX)
+app.include_router(mission_router, prefix=API_V1_PREFIX)
+app.include_router(drone_router, prefix=API_V1_PREFIX)
 
 @app.get("/")
 def health_check():

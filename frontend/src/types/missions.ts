@@ -23,7 +23,8 @@ export interface MissionCreate {
     flight_altitude: number;
     waypoints: Waypoint[];
     assigned_to_id?: number | null;
-    mission_type: MissionType
+    mission_type: MissionType;
+    drone_id: number;
 }
 
 
@@ -41,7 +42,9 @@ export interface Mission {
     assigned_to_id?: number | null;
     assigned_to?: User | null;
     created_at: string;
-    mission_type: MissionType
+    mission_type: MissionType;
+    drone: Drone;
+    drone_id: number;
 }
 
 //Mission details Card
@@ -54,6 +57,7 @@ export interface MissionDetailsCardProps {
 
 //Mission Planning Form
 export interface MissionPlanningFormProps {
+    drones: Drone[];
     onMissionCreated: () => void;
 }
 
@@ -66,6 +70,19 @@ export interface MissionListProps {
     onDeleteMission: (id: number) => void;
 }
 
+//Drone
+export interface Drone {
+    id: number;
+    name: string;
+    model: string;
+    serial_number: string;
+    status: DroneStatus;
+    battery_level: number;
+    created_at: string;
+}
+
 //Mission Status Type
 export type MissionStatus = 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 export type MissionType = 'AREA' | 'LINEAR';
+export type DroneStatus = 'AVAILABLE' | 'IN_MISSION' | 'MAINTENANCE';
+

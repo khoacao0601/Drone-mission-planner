@@ -98,12 +98,12 @@ export const missionAPI = {
         const response = await api.delete<{ message: string }>(`/missions/${encodeURIComponent(safeId)}`);
         return response.data;
     },
-    updateMissionStatus: async (id: number, status: MissionStatus): Promise<Mission> => {
+    updateMissionStatus: async (id: number, status: MissionStatus, drone_id?: number): Promise<Mission> => {
         const safeId = Number(id);
         if (!Number.isInteger(safeId) || safeId <= 0) {
             throw new Error('Invalid mission ID');
         }
-        const response = await api.patch<Mission>(`/missions/${encodeURIComponent(safeId)}/status`, { status });
+        const response = await api.patch<Mission>(`/missions/${encodeURIComponent(safeId)}/status`, { status, drone_id });
         return response.data;
     }
 };
@@ -120,6 +120,22 @@ export const droneAPI = {
             throw new Error('Invalid drone ID');
         }
         const response = await api.get<Drone>(`/drones/${encodeURIComponent(safeId)}`);
+        return response.data;
+    },
+    pickupDrone: async (id: number): Promise<Drone> => {
+        const safeId = Number(id);
+        if (!Number.isInteger(safeId) || safeId <= 0) {
+            throw new Error('Invalid drone ID');
+        }
+        const response = await api.post<Drone>(`/drones/${encodeURIComponent(safeId)}/pickup`);
+        return response.data;
+    },
+    releaseDrone: async (id: number): Promise<Drone> => {
+        const safeId = Number(id);
+        if (!Number.isInteger(safeId) || safeId <= 0) {
+            throw new Error('Invalid drone ID');
+        }
+        const response = await api.post<Drone>(`/drones/${encodeURIComponent(safeId)}/release`);
         return response.data;
     }
 };

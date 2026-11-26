@@ -24,7 +24,6 @@ export interface MissionCreate {
     waypoints: Waypoint[];
     assigned_to_id?: number | null;
     mission_type: MissionType;
-    drone_id: number;
 }
 
 
@@ -43,21 +42,21 @@ export interface Mission {
     assigned_to?: User | null;
     created_at: string;
     mission_type: MissionType;
-    drone: Drone;
-    drone_id: number;
+    drone?: Drone | null;
+    drone_id?: number | null;
 }
 
 //Mission details Card
 export interface MissionDetailsCardProps {
     mission: Mission;
     isAdmin: boolean;
+    drones: Drone[];
     onPlanNewRoute: () => void;
-    onStatusChange: (id: number, newStatus: MissionStatus) => void;
+    onStatusChange: (id: number, newStatus: MissionStatus, droneId?: number) => void;
 }
 
 //Mission Planning Form
 export interface MissionPlanningFormProps {
-    drones: Drone[];
     onMissionCreated: () => void;
 }
 
@@ -79,6 +78,10 @@ export interface Drone {
     status: DroneStatus;
     battery_level: number;
     created_at: string;
+    current_operator_id?: number | null;
+    current_operator?: User | null;
+    picked_up_at?: string | null;
+    released_at?: string | null;
 }
 
 //Mission Status Type

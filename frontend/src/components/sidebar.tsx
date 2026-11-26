@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useMissionStore } from "../store/useMissionStore";
-import { missionAPI } from "../services/api";
+import { missionAPI, droneAPI } from "../services/api";
 import { MissionDetailsCard } from "./missionDetailsCard";
 import { MissionPlanningForm } from "./missionPlanningForm";
 import { MissionList } from "./missionList";
-import type { Mission, MissionStatus } from "../types/missions";
+import type { Mission, MissionStatus, Drone } from "../types/missions";
 
 import { calculateDistanceMeters } from "../utils/calculateDistanceMeters";
 import { calculateEstimatedDuration } from "../utils/calculateETAduration";
@@ -20,6 +20,8 @@ export const Sidebar: React.FC = () => {
 
   const [missions, setMissions] = useState<Mission[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [drones, setDrones] = useState<Drone[]>([]);
+  const [activeTab, setActiveTab] = useState<"MISSIONS" | "FLEET">("MISSIONS");
 
   const {
     waypoints,
@@ -56,6 +58,7 @@ export const Sidebar: React.FC = () => {
   // 1. Fetch missions list from backend
   const fetchMissions = () => {
     missionAPI.getMissions().then(setMissions).catch(console.error);
+    droneAPI.getDrones().then(setDrones).catch(console.error);
   };
 
   useEffect(() => {
@@ -112,7 +115,9 @@ export const Sidebar: React.FC = () => {
 
     // B. PLANNING MODE: Admin creates a new route
     if (user?.role === "ADMIN") {
-      return <MissionPlanningForm onMissionCreated={fetchMissions} />;
+      return (
+        <MissionPlanningForm drones={drones} onMissionCreated={fetchMissions} />
+      );
     }
 
     // C. Pilot View-Only (When no mission is selected yet)
@@ -225,19 +230,109 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. SCROLLABLE BODY: Active Section + Mission List */}
+      {/* 2. SCROLLABLE BODY: Active Tab Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {renderActiveSection()}
+        {/* Navigation Tabs: Missions vs Fleet Inventory */}
+        <div className="grid grid-cols-2 gap-1.5 bg-[#12141a] p-1 rounded-lg border border-[#282c35]">
+          <button
+            type="button"
+            onClick={() => setActiveTab("MISSIONS")}
+            className={`py-1.5 px-2 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+              activeTab === "MISSIONS"
+                ? "bg-[#2b85e4] text-white shadow-sm"
+                : "text-[#9ca3af] hover:text-white"
+            }`}
+          >
+            Missions ({missions.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("FLEET")}
+            className={`py-1.5 px-2 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+              activeTab === "FLEET"
+                ? "bg-[#2b85e4] text-white shadow-sm"
+                : "text-[#9ca3af] hover:text-white"
+            }`}
+          >
+            Fleet Inventory ({drones.length})
+          </button>
+        </div>
+        {activeTab === "MISSIONS" ? (
+          <>
+            {renderActiveSection()}
 
-        <MissionList
-          missions={missions}
-          selectedMissionId={selectedMission?.id}
-          isAdmin={user?.role === "ADMIN"}
-          onSelectMission={setSelectedMission}
-          onDeleteMission={(id) => {
-            void handleDelete(id);
-          }}
-        />
+            <MissionList
+              missions={missions}
+              selectedMissionId={selectedMission?.id}
+              isAdmin={user?.role === "ADMIN"}
+              onSelectMission={setSelectedMission}
+              onDeleteMission={(id) => {
+                void handleDelete(id);
+              }}
+            />
+          </>
+        ) : (
+          <div className="space-y-2.5">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider">
+                Provisioned Hardware ({drones.length})
+              </span>
+              <span className="text-[10px] text-[#6b7280]">OEM Managed</span>
+            </div>
+
+            {drones.map((d) => (
+              <div
+                key={d.id}
+                className="p-3 rounded-lg bg-[#14171d] border border-[#282c35] space-y-2"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="font-semibold text-white text-xs">
+                      {d.name}
+                    </div>
+                    <div className="text-[10px] text-[#9ca3af]">
+                      {d.model} •{" "}
+                      <span className="font-mono">{d.serial_number}</span>
+                    </div>
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
+                      d.status === "AVAILABLE"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                        : d.status === "IN_MISSION"
+                          ? "bg-sky-500/10 text-sky-400 border-sky-500/30"
+                          : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    }`}
+                  >
+                    {d.status}
+                  </span>
+                </div>
+
+                {/* Battery Bar */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-[#9ca3af]">Battery Level</span>
+                    <span className="font-mono font-semibold text-white">
+                      {d.battery_level}%
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-[#232730] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        d.battery_level > 60
+                          ? "bg-emerald-500"
+                          : d.battery_level > 30
+                            ? "bg-amber-500"
+                            : "bg-red-500"
+                      }`}
+                      style={{ width: `${d.battery_level}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </aside>
   );

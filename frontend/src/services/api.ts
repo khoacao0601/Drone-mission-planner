@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
-import type { Mission, MissionCreate, MissionStatus } from '../types/missions';
+import type { Mission, MissionCreate, MissionStatus, Drone } from '../types/missions';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
@@ -104,6 +104,22 @@ export const missionAPI = {
             throw new Error('Invalid mission ID');
         }
         const response = await api.patch<Mission>(`/missions/${encodeURIComponent(safeId)}/status`, { status });
+        return response.data;
+    }
+};
+
+// 5. Drone API calls
+export const droneAPI = {
+    getDrones: async (): Promise<Drone[]> => {
+        const response = await api.get<Drone[]>('/drones/');
+        return response.data;
+    },
+    getDroneDetail: async (id: number): Promise<Drone> => {
+        const safeId = Number(id);
+        if (!Number.isInteger(safeId) || safeId <= 0) {
+            throw new Error('Invalid drone ID');
+        }
+        const response = await api.get<Drone>(`/drones/${encodeURIComponent(safeId)}`);
         return response.data;
     }
 };

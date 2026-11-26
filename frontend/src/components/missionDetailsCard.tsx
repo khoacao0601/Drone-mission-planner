@@ -27,7 +27,9 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
             ←
           </button>
           <div>
-            <div className="font-bold text-sm text-white leading-tight">{mission.name}</div>
+            <div className="font-bold text-sm text-white leading-tight">
+              {mission.name}
+            </div>
             <div className="text-[10px] text-[#9ca3af] mt-0.5">
               Created: {formatDateTime(mission.created_at)}
             </div>
@@ -48,30 +50,57 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
       {/* Compact 2x2 Technical Specs Grid */}
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">Flight Altitude</span>
+          <span className="text-[10px] text-[#9ca3af] uppercase block">
+            Flight Altitude
+          </span>
           <span className="font-mono font-semibold text-white text-xs mt-0.5 block">
-            {mission.flight_altitude}m {formatAltitudeMode(mission.altitude_mode)}
+            {mission.flight_altitude}m{" "}
+            {formatAltitudeMode(mission.altitude_mode)}
           </span>
         </div>
         <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">Horizontal Speed</span>
+          <span className="text-[10px] text-[#9ca3af] uppercase block">
+            Horizontal Speed
+          </span>
           <span className="font-mono font-semibold text-[#38bdf8] text-xs mt-0.5 block">
-            {mission.horizontal_speed} m/s ({Math.round(mission.horizontal_speed * 3.6)} km/h)
+            {mission.horizontal_speed} m/s (
+            {Math.round(mission.horizontal_speed * 3.6)} km/h)
           </span>
         </div>
         <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">Assigned Pilot</span>
+          <span className="text-[10px] text-[#9ca3af] uppercase block">
+            Assigned Pilot
+          </span>
           <span className="font-medium text-[#60a5fa] text-xs mt-0.5 block truncate">
             {mission.assigned_to ? mission.assigned_to.email : "Unassigned"}
           </span>
         </div>
         <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">Takeoff Point</span>
+          <span className="text-[10px] text-[#9ca3af] uppercase block">
+            Takeoff Point
+          </span>
           <span className="font-mono font-semibold text-[#d1d5db] text-xs mt-0.5 block">
             {takeoffPoint
               ? `${takeoffPoint.lat.toFixed(4)}, ${takeoffPoint.lng.toFixed(4)}`
               : "N/A"}
           </span>
+        </div>
+        <div className="col-span-2 bg-[#14171d] p-2.5 rounded-lg border border-[#282c35] flex justify-between items-center">
+          <div>
+            <span className="text-[10px] text-[#9ca3af] uppercase block">
+              Assigned Drone
+            </span>
+            <span className="font-semibold text-white text-xs mt-0.5 block">
+              {mission.drone
+                ? `${mission.drone.name} (${mission.drone.model})`
+                : "N/A"}
+            </span>
+          </div>
+          {mission.drone && (
+            <span className="font-mono text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+              {mission.drone.battery_level}% • {mission.drone.serial_number}
+            </span>
+          )}
         </div>
       </div>
 
@@ -84,8 +113,19 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
             className="bg-[#232730] hover:bg-[#2e333d] active:scale-95 text-[#e5e7eb] py-1.5 px-2.5 rounded-lg font-semibold border border-[#343946] transition cursor-pointer flex items-center justify-center gap-1.5"
             title="Return to Route Planning Mode"
           >
-            <svg className="w-3.5 h-3.5 text-[#60a5fa]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="w-3.5 h-3.5 text-[#60a5fa]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             <span>Plan New Route</span>
           </button>
@@ -93,12 +133,22 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
           <select
             className="bg-[#12141a] hover:bg-[#181b22] text-[#e5e7eb] border border-[#2e333d] focus:border-[#2b85e4] rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer transition outline-none"
             value={mission.status}
-            onChange={(e) => onStatusChange(mission.id, e.target.value as MissionStatus)}
+            onChange={(e) =>
+              onStatusChange(mission.id, e.target.value as MissionStatus)
+            }
           >
-            <option className="bg-[#1c1f26] text-white" value="ASSIGNED">ASSIGNED</option>
-            <option className="bg-[#1c1f26] text-white" value="IN_PROGRESS">IN PROGRESS</option>
-            <option className="bg-[#1c1f26] text-white" value="COMPLETED">COMPLETED</option>
-            <option className="bg-[#1c1f26] text-white" value="CANCELLED">CANCELLED</option>
+            <option className="bg-[#1c1f26] text-white" value="ASSIGNED">
+              ASSIGNED
+            </option>
+            <option className="bg-[#1c1f26] text-white" value="IN_PROGRESS">
+              IN PROGRESS
+            </option>
+            <option className="bg-[#1c1f26] text-white" value="COMPLETED">
+              COMPLETED
+            </option>
+            <option className="bg-[#1c1f26] text-white" value="CANCELLED">
+              CANCELLED
+            </option>
           </select>
         </div>
       )}

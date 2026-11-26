@@ -2,13 +2,14 @@
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 
 from crud import crud_mission, crud_drone
 from models.user import User
 from schemas.mission import MissionCreate, MissionStatus
 
 PILOT_ALLOWED_TRANSITIONS = {
-    MissionStatus.ASSIGNED.value: [MissionStatus.IN_PROGRESS.value],
+    MissionStatus.ASSIGNED.value: [MissionStatus.ASSIGNED.value, MissionStatus.IN_PROGRESS.value],
     MissionStatus.IN_PROGRESS.value: [MissionStatus.COMPLETED.value],
 }
 
@@ -54,6 +55,36 @@ def delete_mission( db: Session, mission_id: int ):
     return { "message": "Mission deleted successfully!"}
 
 
+# Validate picked-up drone and record audit note if switching to an Alternative Drone
+def validate_and_assign_drone(db: Session, mission, target_drone_id: int | None, current_user: User):
+    if not target_drone_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Please assign a picked-up drone before starting the mission!"
+        )
+    drone = crud_drone.get_drone_by_id(db, target_drone_id)
+    if not drone:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Drone not found!"
+        )
+    is_unauthorized_operator = current_user.role != "ADMIN" and drone.current_operator_id != current_user.id
+    if drone.status != "IN_MISSION" or is_unauthorized_operator:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You must pick up this drone from Fleet Management first!"
+        )
+
+    if mission.drone and mission.drone_id != target_drone_id:
+        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        old_info = f"{mission.drone.name} ({mission.drone.serial_number})"
+        new_info = f"{drone.name} ({drone.serial_number})"
+        mission.description = (
+            f"Assigned Drone: {old_info} (Not available at {now_str}) | "
+            f"Alternative Drone: {new_info}"
+        )
+
+
 # Update Mission Status
 def update_mission_status(db: Session, mission_id: int, new_status: MissionStatus, current_user: User, drone_id: int | None = None):
     mission = get_mission_detail(db, mission_id=mission_id, current_user=current_user)
@@ -65,22 +96,15 @@ def update_mission_status(db: Session, mission_id: int, new_status: MissionStatu
                 detail="Cannot update status"
             )
 
-    if new_status.value == "IN_PROGRESS":
-        if not drone_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Please pick up an available drone to start the mission!"
-            )
-        drone = crud_drone.get_drone_by_id(db, drone_id)
-        if not drone:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Drone not found!"
-            )
-        if drone.status != "IN_MISSION" or (current_user.role != "ADMIN" and drone.current_operator_id != current_user.id):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="You must pick up this drone from Fleet Management before starting a mission!"
-            )
-    return crud_mission.update_mission_status(db=db, db_mission=mission, new_status=new_status.value, drone_id=drone_id)
+    target_drone_id = drone_id if drone_id is not None else mission.drone_id
+
+    if new_status.value == "IN_PROGRESS" or drone_id is not None:
+        validate_and_assign_drone(db, mission, target_drone_id, current_user)
+
+    return crud_mission.update_mission_status(
+        db=db,
+        db_mission=mission,
+        new_status=new_status.value,
+        drone_id=target_drone_id
+    )
             

@@ -46,6 +46,11 @@
                         {m.waypoints.length} pts
                         </span>
                         <StatusBadge status={m.status} />
+                        {m.drone && (
+                        <span className="font-mono text-[#9ca3af]">
+                            • {m.drone.serial_number}
+                        </span>
+                        )}
                     </div>
                     </div>
 

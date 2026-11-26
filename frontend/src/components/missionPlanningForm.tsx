@@ -6,6 +6,7 @@ import { missionAPI } from "../services/api";
 import type { MissionPlanningFormProps } from "../types/missions";
 
 export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
+  drones = [],
   onMissionCreated,
 }) => {
   const {
@@ -23,6 +24,7 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
   const [name, setName] = useState("");
   const [pilotId, setPilotId] = useState<number | null>(2);
   const [isSaving, setIsSaving] = useState(false);
+  const [droneId, setDroneId] = useState<number | "">("");
 
   // Admin saves mission
   const handleSave = async (e: React.FormEvent) => {
@@ -33,6 +35,11 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
       alert(
         `Please enter mission name and select at least ${minWaypoints} waypoints on the map.`,
       );
+      return;
+    }
+
+    if (!droneId) {
+      alert(`Please pick a drone.`);
       return;
     }
 
@@ -47,12 +54,14 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
         assigned_to_id: pilotId,
         waypoints: waypoints,
         mission_type: missionType,
+        drone_id: droneId,
       });
 
       setName("");
       setSpeed(15);
       clearWaypoint();
       onMissionCreated();
+      setDroneId("");
     } catch (error) {
       console.error(error);
     } finally {
@@ -237,6 +246,26 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
           </div>
         </div>
       )}
+
+      <div className="space-y-1">
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#9ca3af]">
+          Assign Drone (Hardware)
+        </label>
+        <select
+          value={droneId}
+          onChange={(e) =>
+            setDroneId(e.target.value ? Number(e.target.value) : "")
+          }
+          className="w-full bg-[#12141a] px-2.5 py-1.5 rounded-lg border border-[#2e333d] focus:border-[#2b85e4] text-[#d1d5db] outline-none transition cursor-pointer"
+        >
+          <option value="">-- Select Available Drone --</option>
+          {drones.map((d) => (
+            <option key={d.id} value={d.id} disabled={d.status !== "AVAILABLE"}>
+              {d.name} ({d.serial_number}) - {d.battery_level}% [{d.status}]
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* 5. Action Buttons */}
       <div className="flex gap-2 pt-1">

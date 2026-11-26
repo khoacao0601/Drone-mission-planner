@@ -28,6 +28,7 @@ class MissionCreate(BaseModel):
     waypoints: list = []
     assigned_to_id: Optional[int] = None
     mission_type: MissionType = MissionType.AREA
+    drone_id: Optional[int] = None
 
 
 # Return Data for Web

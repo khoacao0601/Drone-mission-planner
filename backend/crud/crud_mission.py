@@ -30,7 +30,6 @@ def create_mission(db: Session, mission: MissionCreate, created_by_id: int):
         assigned_to_id=mission.assigned_to_id,
         created_by_id=created_by_id,
         mission_type=mission.mission_type.value,
-        drone_id=mission.drone_id
     )
     db.add(db_mission)
     db.commit()
@@ -43,8 +42,10 @@ def delete_mission( db: Session, db_mission: Mission):
     db.commit()
 
 # Update Status Mission
-def update_mission_status( db: Session, db_mission: Mission, new_status: str ):
+def update_mission_status( db: Session, db_mission: Mission, new_status: str, drone_id: int | None = None ):
     db_mission.status = new_status
+    if drone_id is not None:
+        db_mission.drone_id = drone_id
     db.commit()
     db.refresh(db_mission)
     return db_mission

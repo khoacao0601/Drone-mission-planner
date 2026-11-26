@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from schemas.user import UserResponse
 from schemas.drone import DroneResponse
 from enum import Enum

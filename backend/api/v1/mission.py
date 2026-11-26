@@ -62,5 +62,5 @@ def update_mission_status(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    return mission_service.update_mission_status(db=db, mission_id=mission_id, new_status=status_update.status, current_user=current_user)
+    return mission_service.update_mission_status(db=db, mission_id=mission_id, new_status=status_update.status, current_user=current_user, drone_id=status_update.drone_id)
 

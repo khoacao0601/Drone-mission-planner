@@ -3,7 +3,6 @@
 from datetime import datetime
 from typing import Optional
 from sqlalchemy import DateTime, Integer, String, func, ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.user import User

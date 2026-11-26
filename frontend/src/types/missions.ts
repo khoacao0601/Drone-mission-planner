@@ -24,6 +24,7 @@ export interface MissionCreate {
     waypoints: Waypoint[];
     assigned_to_id?: number | null;
     mission_type: MissionType;
+    drone_id?: number | null;
 }
 
 
@@ -57,6 +58,7 @@ export interface MissionDetailsCardProps {
 
 //Mission Planning Form
 export interface MissionPlanningFormProps {
+    drones: Drone[];
     onMissionCreated: () => void;
 }
 

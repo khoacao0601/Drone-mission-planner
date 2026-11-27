@@ -12,68 +12,69 @@
     onDeleteMission,
     }) => {
     return (
-        <div>
-        <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider">
-            Mission Registry ({missions.length})
-            </span>
+        <div className="space-y-2">
+        <div className="flex justify-between items-center">
+            <h3 className="text-sm font-semibold text-white">Missions: </h3>
         </div>
 
-        <div className="space-y-2">
+        <div className="divide-y divide-white/10">
             {missions.length === 0 ? (
-            <div className="text-center py-4 text-[#6b7280] text-[11px]">
+            <div className="text-center py-3 text-[#6b7280] text-xs">
                 No missions found
             </div>
             ) : (
-            missions.map((m) => (
+            missions.map((m, index) => (
                 <div
                 key={m.id}
-                className={`p-2.5 gap-2 rounded-lg border cursor-pointer flex justify-between items-center transition-all ${
+                className={`group px-2 py-2.5 cursor-pointer flex justify-between items-center gap-2 transition-colors ${
                     selectedMissionId === m.id
-                    ? "bg-[#2b85e4]/15 border-[#2b85e4] shadow-sm"
-                    : "bg-[#14171d] border-[#282c35] hover:border-[#363b47] hover:bg-[#1a1e26]"
+                    ? "bg-[#252b38]/80 rounded-lg"
+                    : "hover:bg-white/5"
                 }`}
                 >
                 <button
                     type="button"
                     onClick={() => onSelectMission(m)}
-                    className="flex-1 flex justify-between items-center text-left cursor-pointer"
+                    className="flex-1 flex items-center justify-between gap-2 text-left cursor-pointer min-w-0"
                 >
-                    <div>
-                    <div className="font-semibold text-white">{m.name}</div>
-                    <div className="text-[10px] text-[#9ca3af] mt-0.5 flex items-center gap-1.5">
-                        <span className="font-mono font-semibold text-[#60a5fa]">
-                        {m.waypoints.length} pts
+                    <div className="flex items-start gap-2.5 min-w-0">
+                    <span className="text-[11px] font-mono tabular-nums text-slate-300 w-3 shrink-0 mt-0.5">
+                        {index + 1}
+                    </span>
+                    <div className="min-w-0 space-y-0.5">
+                        <div className="text-xs font-medium text-white truncate">
+                        {m.name}
+                        </div>
+                        <div className="text-[11px] text-slate-200 flex items-center gap-1.5">
+                        <span className="font-mono text-[#60a5fa]">
+                            {m.waypoints.length} pts
                         </span>
-                        <StatusBadge status={m.status} />
                         {m.drone && (
-                        <span className="font-mono text-[#9ca3af]">
-                            • {m.drone.serial_number}
-                        </span>
+                            <>
+                            <span>•</span>
+                            <span className="font-mono">
+                                {m.drone.serial_number}
+                            </span>
+                            </>
                         )}
+                        </div>
+                        <div className="text-[11px] text-slate-200">
+                        {m.assigned_to ? m.assigned_to.email : "Unassigned"}
+                        </div>
                     </div>
                     </div>
 
-                    {/* Assigned pilot badge */}
-                    <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-medium border ${
-                        m.assigned_to
-                        ? "bg-[#232730] text-[#d1d5db] border-[#343946]"
-                        : "bg-[#181a1f] text-[#6b7280] border-[#282c35]"
-                    }`}
-                    >
-                    {m.assigned_to ? m.assigned_to.email : "Unassigned"}
-                    </span>
+                    <StatusBadge status={m.status} />
                 </button>
 
-                {/* Delete Button (Admin Only) */}
+                {/* Delete Button (Admin Only, visible on hover) */}
                 {isAdmin && (
                     <button
                     type="button"
                     onClick={() => {
                         onDeleteMission(m.id);
                     }}
-                    className="text-[#9ca3af] hover:text-red-300 bg-[#232730] hover:bg-red-500/20 border border-[#343946] hover:border-red-500/40 p-1.5 rounded-lg transition cursor-pointer active:scale-95"
+                    className="text-slate-300 hover:text-red-400 bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 p-1.5 rounded-lg transition cursor-pointer shrink-0"
                     title="Delete Mission"
                     >
                     <svg

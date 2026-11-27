@@ -43,29 +43,29 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
   const isAlternativeLog = mission.description?.startsWith("Assigned Drone:");
 
   return (
-    <div className="space-y-2.5 border-b border-[#2e333d] pb-3.5">
-      {/* Header Row: Back Button + Mission Title + Badges */}
-      <div className="flex justify-between items-center bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-        <div className="flex items-center gap-2">
+    <div className="space-y-3.5 border-b border-white/15 pb-4">
+      {/* 1. Header Row: Back Button + Mission Title + Badges */}
+      <div className="flex justify-between items-start gap-2">
+        <div className="flex items-start gap-2.5 min-w-0">
           <button
             type="button"
             onClick={onPlanNewRoute}
-            className="text-[#d1d5db] hover:text-white px-2 py-1 rounded bg-[#232730] hover:bg-[#2e333d] border border-[#343946] text-[11px] cursor-pointer transition"
+            className="text-[#d1d5db] hover:text-white w-7 h-7 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-xs cursor-pointer transition flex items-center justify-center shrink-0 mt-0.5"
             title="Return to Route Planning"
           >
             ←
           </button>
-          <div>
-            <div className="font-bold text-sm text-white leading-tight">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-sm text-white leading-tight truncate">
               {mission.name}
-            </div>
-            <div className="text-[10px] text-[#9ca3af] mt-0.5">
+            </h3>
+            <div className="text-[11px] text-slate-200 mt-0.5">
               Created: {formatDateTime(mission.created_at)}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#232730] text-[#d1d5db] border border-[#343946]">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-white/15 text-white border border-white/20">
             {mission.mission_type}
           </span>
           <StatusBadge status={mission.status} />
@@ -75,10 +75,10 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
       {/* Audit Note if Alternative Drone was used, otherwise normal description */}
       {mission.description && (
         <div
-          className={`text-[11px] px-2.5 py-2 rounded-lg border ${
+          className={`text-[11px] rounded-xl border px-3 py-2 ${
             isAlternativeLog
               ? "bg-amber-500/10 border-amber-500/30 text-amber-200 space-y-1"
-              : "text-[#9ca3af] border-transparent px-1"
+              : "text-slate-200 border-white/10 bg-white/5"
           }`}
         >
           {isAlternativeLog
@@ -91,111 +91,108 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
         </div>
       )}
 
-      {/* Compact 2x2 Technical Specs Grid */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">
-            Flight Altitude
-          </span>
-          <span className="font-mono font-semibold text-white text-xs mt-0.5 block">
-            {mission.flight_altitude}m{" "}
-            {formatAltitudeMode(mission.altitude_mode)}
-          </span>
-        </div>
-        <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">
-            Horizontal Speed
-          </span>
-          <span className="font-mono font-semibold text-[#38bdf8] text-xs mt-0.5 block">
-            {mission.horizontal_speed} m/s (
-            {Math.round(mission.horizontal_speed * 3.6)} km/h)
-          </span>
-        </div>
-        <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">
-            Assigned Pilot
-          </span>
-          <span className="font-medium text-[#60a5fa] text-xs mt-0.5 block truncate">
-            {mission.assigned_to ? mission.assigned_to.email : "Unassigned"}
-          </span>
-        </div>
-        <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35]">
-          <span className="text-[10px] text-[#9ca3af] uppercase block">
-            Takeoff Point
-          </span>
-          <span className="font-mono font-semibold text-[#d1d5db] text-xs mt-0.5 block">
-            {takeoffPoint
-              ? `${takeoffPoint.lat.toFixed(4)}, ${takeoffPoint.lng.toFixed(4)}`
-              : "N/A"}
-          </span>
-        </div>
-        <div className="col-span-2 bg-[#14171d] p-2.5 rounded-lg border border-[#282c35] flex justify-between items-center">
-          <div>
-            <span className="text-[10px] text-[#9ca3af] uppercase block">
-              {isAlternativeLog ? "Active Alternative Drone" : "Assigned Drone"}
-            </span>
-            <span className="font-semibold text-white text-xs mt-0.5 block">
-              {mission.drone
-                ? `${mission.drone.name} (${mission.drone.model})`
-                : "Not Assigned Yet (Pilot Choice)"}
+      {/* 2. Flat 2x2 Technical Specs Grid with Hairline Dividers */}
+      <div className="border-y border-white/15 divide-y divide-white/15">
+        <div className="grid grid-cols-2">
+          <div className="py-2.5 pr-3">
+            <span className="text-[11px] font-medium text-slate-200 block">Altitude</span>
+            <span className="font-mono tabular-nums font-semibold text-amber-400 text-xs mt-0.5 block">
+              {mission.flight_altitude}m{" "}
+              {formatAltitudeMode(mission.altitude_mode)}
             </span>
           </div>
-          {mission.drone && (
-            <span className="font-mono text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
-              {mission.drone.battery_level}% • {mission.drone.serial_number}
+          <div className="py-2.5 pl-3 border-l border-white/15">
+            <span className="text-[11px] font-medium text-slate-200 block">Speed</span>
+            <span className="font-mono tabular-nums font-semibold text-[#38bdf8] text-xs mt-0.5 block whitespace-nowrap">
+              {mission.horizontal_speed} m/s (
+              {Math.round(mission.horizontal_speed * 3.6)} km/h)
             </span>
-          )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2">
+          <div className="py-2.5 pr-3 min-w-0">
+            <span className="text-[11px] font-medium text-slate-200 block">Pilot</span>
+            <span className="font-medium text-white text-xs mt-0.5 block truncate">
+              {mission.assigned_to ? mission.assigned_to.email : "Unassigned"}
+            </span>
+          </div>
+          <div className="py-2.5 pl-3 border-l border-white/15">
+            <span className="text-[11px] font-medium text-slate-200 block">Takeoff</span>
+            <span className="font-mono tabular-nums text-white text-xs mt-0.5 block whitespace-nowrap">
+              {takeoffPoint
+                ? `${takeoffPoint.lat.toFixed(4)}, ${takeoffPoint.lng.toFixed(4)}`
+                : "N/A"}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Drone Selection / Verification Box before Starting Mission */}
+      {/* 3. Assigned Drone Row */}
+      <div className="flex justify-between items-center gap-2">
+        <div className="min-w-0">
+          <span className="text-[10px] uppercase tracking-wider font-medium text-slate-300 block">
+            {isAlternativeLog ? "Active Alternative Drone" : "Assigned Drone"}
+          </span>
+          <span className="font-semibold text-white text-sm mt-1 block truncate">
+            {mission.drone ? mission.drone.name : "Any Drone (Pilot Choice)"}
+          </span>
+        </div>
+        {mission.drone && (
+          <span className="font-mono tabular-nums text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 px-2.5 py-1 rounded-full border border-emerald-500/30 whitespace-nowrap shrink-0">
+            {mission.drone.battery_level}% • {mission.drone.serial_number}
+          </span>
+        )}
+      </div>
+
+      {/* 4. Compact Drone Readiness / Selection Callout */}
       {mission.status === "ASSIGNED" && (
-        <div className="bg-[#14171d] p-2.5 rounded-lg border border-[#282c35] space-y-2">
-          {mission.drone && !isAssignedDronePickedUp && (
-            <div className="text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/30 p-2 rounded">
-              ⚠️ Assigned drone <b>{mission.drone.name} ({mission.drone.serial_number})</b> is not in your picked-up fleet. Please notify Admin before selecting an alternative drone below.
-            </div>
-          )}
-
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-[#9ca3af] block">
-            {mission.drone && !isAssignedDronePickedUp
-              ? "Select Alternative Picked-Up Drone"
-              : "Drone to Deploy (From Your Picked-Up Fleet)"}
-          </label>
-
+        <div className="space-y-2">
           {myPickedUpDrones.length === 0 ? (
-            <div className="text-[11px] text-red-300 bg-red-500/10 border border-red-500/30 p-2 rounded">
-              🚫 You have not picked up any drone yet. Go to the <b>Fleet Management</b> tab in the header to pick up a drone before starting this mission.
+            <div className="flex items-start gap-2 text-[11px] text-amber-200/90 bg-amber-500/10 border border-amber-500/25 px-3 py-2 rounded-xl leading-relaxed">
+              <span className="shrink-0 mt-0.5">⚠️</span>
+              <span>
+                No drone picked up yet. Check out a unit in{" "}
+                <strong className="text-white">Fleet Dispatch</strong> before
+                starting.
+              </span>
             </div>
           ) : (
-            <select
-              value={selectedDroneId}
-              onChange={(e) => setSelectedDroneId(e.target.value)}
-              className="w-full bg-[#12141a] px-2.5 py-1.5 rounded-lg border border-[#2e333d] focus:border-[#2b85e4] text-[#e5e7eb] text-xs outline-none cursor-pointer"
-            >
-              {myPickedUpDrones.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name} ({d.serial_number}) • {d.battery_level}%
-                </option>
-              ))}
-            </select>
+            <div className="space-y-1.5">
+              <label className="text-[11px] text-[#9ca3af] block">
+                {mission.drone && !isAssignedDronePickedUp
+                  ? "Alternative Picked-Up Drone (Notify Admin)"
+                  : "Deploy With Picked-Up Drone"}
+              </label>
+              <select
+                value={selectedDroneId}
+                onChange={(e) => setSelectedDroneId(e.target.value)}
+                className="w-full bg-[#0b0d12]/60 px-2.5 py-1.5 rounded-lg border border-white/15 focus:border-[#2563eb] text-[#e5e7eb] text-xs outline-none cursor-pointer"
+              >
+                {myPickedUpDrones.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name} ({d.serial_number}) • {d.battery_level}%
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
         </div>
       )}
 
-      {/* Admin Controls */}
+      {/* 5. Admin Controls */}
       {isAdmin && (
         <div className="grid grid-cols-2 gap-2 pt-0.5">
           <button
             type="button"
             onClick={onPlanNewRoute}
-            className="bg-[#232730] hover:bg-[#2e333d] active:scale-95 text-[#e5e7eb] py-1.5 px-2.5 rounded-lg font-semibold border border-[#343946] transition cursor-pointer flex items-center justify-center gap-1.5"
+            className="bg-white/10 hover:bg-white/15 active:scale-[0.99] text-[#e5e7eb] py-1.5 px-2.5 rounded-lg text-xs font-medium border border-white/15 transition cursor-pointer flex items-center justify-center gap-1"
           >
-            <span>+ Plan New Route</span>
+            <span>+ New Route</span>
           </button>
 
           <select
-            className="bg-[#12141a] hover:bg-[#181b22] text-[#e5e7eb] border border-[#2e333d] focus:border-[#2b85e4] rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer transition outline-none"
+            className="bg-[#0b0d12]/60 hover:bg-[#0b0d12]/80 text-[#e5e7eb] border border-white/15 focus:border-[#2563eb] rounded-lg px-2.5 py-1.5 text-xs font-semibold cursor-pointer transition outline-none"
             value={mission.status}
             onChange={(e) =>
               onStatusChange(
@@ -205,16 +202,16 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
               )
             }
           >
-            <option className="bg-[#1c1f26] text-white" value="ASSIGNED">
+            <option className="bg-[#111622] text-white" value="ASSIGNED">
               ASSIGNED
             </option>
-            <option className="bg-[#1c1f26] text-white" value="IN_PROGRESS">
+            <option className="bg-[#111622] text-white" value="IN_PROGRESS">
               IN PROGRESS
             </option>
-            <option className="bg-[#1c1f26] text-white" value="COMPLETED">
+            <option className="bg-[#111622] text-white" value="COMPLETED">
               COMPLETED
             </option>
-            <option className="bg-[#1c1f26] text-white" value="CANCELLED">
+            <option className="bg-[#111622] text-white" value="CANCELLED">
               CANCELLED
             </option>
           </select>
@@ -224,7 +221,7 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
       {!isAdmin && mission.status === "ASSIGNED" && (
         <button
           disabled={!selectedDroneId}
-          className="w-full bg-[#2b85e4] hover:bg-[#3b93f0] active:scale-95 text-white py-2 rounded-lg font-semibold transition cursor-pointer shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-[0.99] text-white py-2 rounded-lg text-xs font-semibold transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           type="button"
           onClick={() =>
             onStatusChange(mission.id, "IN_PROGRESS", Number(selectedDroneId))
@@ -236,7 +233,7 @@ export const MissionDetailsCard: React.FC<MissionDetailsCardProps> = ({
 
       {!isAdmin && mission.status === "IN_PROGRESS" && (
         <button
-          className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white py-2 rounded-lg font-semibold transition cursor-pointer shadow-sm"
+          className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white py-2 rounded-lg text-xs font-semibold transition cursor-pointer"
           type="button"
           onClick={() => onStatusChange(mission.id, "COMPLETED")}
         >

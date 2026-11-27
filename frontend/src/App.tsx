@@ -1,15 +1,17 @@
 // Copyright (c) 2026 Khoa Cao. All rights reserved.
 
-import { useEffect } from 'react';
-import { useAuthStore } from './store/useAuthStore';
-import { authAPI } from './services/api';
-import { LoginPage } from './components/loginPage';
-import { Header } from './components/header';
-import { Sidebar } from './components/sidebar';
-import { MapViewer } from './components/mapViewer';
+import { useEffect, useState } from "react";
+import { useAuthStore } from "./store/useAuthStore";
+import { authAPI } from "./services/api";
+import { LoginPage } from "./components/loginPage";
+import { Header } from "./components/header";
+import { Sidebar } from "./components/sidebar";
+import { MapViewer } from "./components/mapViewer";
+import { FleetPage } from "./components/fleetPage";
 
 function App() {
   const { user, isInitializing, login, setInitializing } = useAuthStore();
+  const [activePage, setActivePage] = useState<"PLANNER" | "FLEET">("PLANNER");
 
   // Restore session from HttpOnly cookie on first load or F5
   useEffect(() => {
@@ -31,8 +33,12 @@ function App() {
     return (
       <div className="w-screen h-screen bg-slate-950 flex flex-col justify-center items-center text-white select-none">
         <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4" />
-        <h2 className="text-sm font-semibold tracking-wider uppercase text-gray-300">Flyby Mission Control</h2>
-        <p className="text-xs text-gray-500 mt-1">Initializing tactical session...</p>
+        <h2 className="text-sm font-semibold tracking-wider uppercase text-gray-300">
+          Flyby Mission Control
+        </h2>
+        <p className="text-xs text-gray-500 mt-1">
+          Initializing tactical session...
+        </p>
       </div>
     );
   }
@@ -42,13 +48,21 @@ function App() {
     return <LoginPage />;
   }
 
-  // 3. Authenticated: Render 3D Flight Planner Dashboard
+  // 3. Authenticated: Render 3D Flight Planner or Fleet Management Page
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden bg-slate-950">
-      <Header />
+      <Header activePage={activePage} onNavigate={setActivePage} />
       <main className="relative flex-1 w-full h-full overflow-hidden">
-        <Sidebar />
+        {/* Keep MapViewer mounted at all times so WebGL/Mapbox never reloads! */}
         <MapViewer />
+
+        {activePage === "PLANNER" ? (
+          <Sidebar />
+        ) : (
+          <div className="absolute inset-0 z-20">
+            <FleetPage />
+          </div>
+        )}
       </main>
     </div>
   );

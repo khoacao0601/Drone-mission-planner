@@ -53,6 +53,12 @@ export const Sidebar: React.FC = () => {
     activeType === "AREA" && activeWaypoints.length >= 3
       ? calculatePolygonArea(activeWaypoints)
       : 0;
+  let formattedArea = "0.0 ha";
+  if (liveArea >= 1000) {
+    formattedArea = `${(liveArea / 10000).toFixed(1)} ha`;
+  } else if (liveArea > 0) {
+    formattedArea = `${Math.round(liveArea)} m²`;
+  }
 
   // 1. Fetch missions list from backend
   const fetchMissions = () => {
@@ -123,7 +129,9 @@ export const Sidebar: React.FC = () => {
 
     // B. PLANNING MODE: Admin creates a new route
     if (user?.role === "ADMIN") {
-      return <MissionPlanningForm drones={drones} onMissionCreated={fetchMissions} />;
+      return (
+        <MissionPlanningForm drones={drones} onMissionCreated={fetchMissions} />
+      );
     }
 
     // C. Pilot View-Only (When no mission is selected yet)
@@ -199,13 +207,17 @@ export const Sidebar: React.FC = () => {
 
         <div className="grid grid-cols-3 text-left pr-5">
           <div className="pr-3">
-            <div className="text-[11px] font-medium text-slate-200">Distance</div>
+            <div className="text-[11px] font-medium text-slate-200">
+              Distance
+            </div>
             <div className="font-semibold text-white text-sm md:text-base tabular-nums whitespace-nowrap mt-0.5">
               {formatDistance(liveDistance)}
             </div>
           </div>
           <div className="px-3 border-l border-white/15">
-            <div className="text-[11px] font-medium text-slate-200">Est. Time</div>
+            <div className="text-[11px] font-medium text-slate-200">
+              Est. Time
+            </div>
             <div className="font-semibold text-white text-sm md:text-base tabular-nums whitespace-nowrap mt-0.5">
               {formatDuration(liveDuration)}
             </div>
@@ -213,11 +225,7 @@ export const Sidebar: React.FC = () => {
           <div className="pl-3 border-l border-white/15">
             <div className="text-[11px] font-medium text-slate-200">Area</div>
             <div className="font-semibold text-white text-sm md:text-base tabular-nums whitespace-nowrap mt-0.5">
-              {liveArea > 0
-                ? liveArea >= 1000
-                  ? `${(liveArea / 10000).toFixed(1)} ha`
-                  : `${Math.round(liveArea)} m²`
-                : "0.0 ha"}
+              {formattedArea}
             </div>
           </div>
         </div>

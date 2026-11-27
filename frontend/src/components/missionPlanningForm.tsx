@@ -53,7 +53,9 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
       setPilotId(null);
     } catch (error) {
       console.error(error);
-      alert("Failed to deploy mission. Please check your connection or permissions.");
+      alert(
+        "Failed to deploy mission. Please check your connection or permissions.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -102,8 +104,14 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
 
       {/* 1. Mission Name */}
       <div className="space-y-1">
-        <label className="text-[11px] font-medium text-slate-200">Mission Name</label>
+        <label
+          htmlFor="mission-name-input"
+          className="text-[11px] font-medium text-slate-200"
+        >
+          Mission Name
+        </label>
         <input
+          id="mission-name-input"
           placeholder="DTLA Sector 04"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -113,7 +121,9 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
 
       {/* 2. Flight Mode Segmented Toggle */}
       <div className="space-y-1">
-        <span className="text-[11px] font-medium text-slate-200">Flight Mode</span>
+        <span className="text-[11px] font-medium text-slate-200">
+          Flight Mode
+        </span>
         <div className="grid grid-cols-2 gap-1 bg-[#0b0d12]/60 p-1 rounded-lg border border-white/15">
           <button
             type="button"

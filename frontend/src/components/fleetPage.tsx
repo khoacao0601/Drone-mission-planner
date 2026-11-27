@@ -48,7 +48,7 @@
     ) => {
         try {
         const targetDrone = drones.find((d) => d.id === altDroneId);
-        if (targetDrone && targetDrone.status === "AVAILABLE") {
+        if (targetDrone?.status === "AVAILABLE") {
             await droneAPI.pickupDrone(altDroneId);
         }
         await missionAPI.updateMissionStatus(mission.id, "ASSIGNED", altDroneId);
@@ -211,18 +211,20 @@
                         </div>
 
                         <div className="shrink-0">
-                            {!assignedDrone ? (
+                            {!assignedDrone && (
                             <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">
                                 Pilot Authorized to Choose
                             </span>
-                            ) : isPickedUpByAssignedPilot ? (
+                            )}
+                            {assignedDrone && isPickedUpByAssignedPilot && (
                             <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                                 ✓ Picked Up by Pilot
                                 {assignedDrone.picked_up_at
                                 ? ` • ${formatDateTime(assignedDrone.picked_up_at)}`
                                 : ""}
                             </span>
-                            ) : (
+                            )}
+                            {assignedDrone && !isPickedUpByAssignedPilot && (
                             <span className="px-3 py-1 rounded-full text-[11px] font-medium bg-white/5 text-slate-300 border border-white/10">
                                 Awaiting Pilot Pickup ({assignedDrone.status})
                             </span>
@@ -449,12 +451,22 @@
                 const requiredForMissions = activeFleetMissions.filter(
                     (m) => m.drone_id === d.id,
                 );
-                const batteryColor =
-                    d.battery_level >= 60
-                    ? "bg-emerald-400"
-                    : d.battery_level >= 30
-                        ? "bg-amber-400"
-                        : "bg-red-400";
+                let batteryColor = "bg-red-400";
+                if (d.battery_level >= 60) {
+                    batteryColor = "bg-emerald-400";
+                } else if (d.battery_level >= 30) {
+                    batteryColor = "bg-amber-400";
+                }
+
+                let statusBadgeClass =
+                    "bg-amber-500/15 text-amber-300 border-amber-500/30";
+                if (d.status === "AVAILABLE") {
+                    statusBadgeClass =
+                    "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+                } else if (d.status === "IN_MISSION") {
+                    statusBadgeClass =
+                    "bg-sky-500/15 text-sky-300 border-sky-500/30";
+                }
 
                 return (
                     <div
@@ -473,13 +485,7 @@
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
                         <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                            d.status === "AVAILABLE"
-                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                                : d.status === "IN_MISSION"
-                                ? "bg-sky-500/15 text-sky-300 border-sky-500/30"
-                                : "bg-amber-500/15 text-amber-300 border-amber-500/30"
-                            }`}
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${statusBadgeClass}`}
                         >
                             {d.status}
                         </span>

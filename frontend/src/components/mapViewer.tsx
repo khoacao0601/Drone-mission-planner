@@ -228,27 +228,23 @@ export const MapViewer: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-slate-950">
-      {/* Top Map Telemetry Strip (Flyby Prototype UI Style) */}
-      <div className="absolute top-3 left-[408px] right-3 z-10 flex justify-between items-center bg-[#181a1f]/85 backdrop-blur-md border border-[#2e333d] px-3.5 py-1.5 rounded-lg text-[11px] font-mono text-[#9ca3af] select-none pointer-events-none shadow-lg">
-        <div className="flex items-center gap-4">
-          <span>
-            LAT:{" "}
-            <strong className="text-[#e5e7eb]">{displayLat.toFixed(4)}</strong>
-          </span>
-          <span>
-            LNG:{" "}
-            <strong className="text-[#e5e7eb]">{displayLng.toFixed(4)}</strong>
-          </span>
-          <span>
-            MODE: <strong className="text-[#60a5fa]">REL_TAKEOFF</strong>
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[#38bdf8] font-semibold">
-            ALT: {displayAlt}m
-          </span>
-          <span>WGS 84</span>
-        </div>
+      {/* Bottom-Right Responsive Tactical HUD Pill */}
+      <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 2xl:bottom-6 2xl:right-6 z-10 flex items-center gap-2.5 md:gap-3.5 2xl:gap-4 bg-[#111622]/50 backdrop-blur-md border border-white/15 px-3 py-1.5 md:px-4 md:py-2.5 2xl:px-5 2xl:py-3 rounded-xl text-xs md:text-sm 2xl:text-base font-mono tabular-nums text-[#9ca3af] select-none pointer-events-none shadow-xl">
+        <span>
+          <strong className="text-[#e5e7eb]">
+            {Math.round(viewState.pitch ?? 0)}°
+          </strong>
+        </span>
+        <span className="text-white/25">|</span>
+        <span>
+          <strong className="text-[#e5e7eb]">{displayLat.toFixed(4)}°</strong>
+          {", "}
+          <strong className="text-[#e5e7eb]">{displayLng.toFixed(4)}°</strong>
+        </span>
+        <span className="text-white/25">|</span>
+        <span className="text-amber-400 font-semibold">
+          {displayAlt}m
+        </span>
       </div>
       <DeckGL
         viewState={viewState}
@@ -273,8 +269,9 @@ export const MapViewer: React.FC = () => {
       >
         <Map
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
-          mapStyle="mapbox://styles/mapbox/satellite-streets-v12"
+          mapStyle="mapbox://styles/mapbox/satellite-v9"
           attributionControl={false}
+          style={{ filter: "brightness(0.55) saturate(0.65) contrast(1.08)" }}
         />
       </DeckGL>
     </div>

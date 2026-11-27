@@ -6,6 +6,7 @@ import { missionAPI } from "../services/api";
 import type { MissionPlanningFormProps } from "../types/missions";
 
 export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
+  drones = [],
   onMissionCreated,
 }) => {
   const {
@@ -23,6 +24,7 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
   const [name, setName] = useState("");
   const [pilotId, setPilotId] = useState<number | null>(2);
   const [isSaving, setIsSaving] = useState(false);
+  const [droneId, setDroneId] = useState<number | null>(null);
 
   // Admin saves mission
   const handleSave = async (e: React.FormEvent) => {
@@ -46,13 +48,15 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
         flight_altitude: altitude,
         assigned_to_id: pilotId,
         waypoints: waypoints,
-        mission_type: missionType
+        mission_type: missionType,
+        drone_id: droneId,
       });
 
       setName("");
       setSpeed(15);
       clearWaypoint();
       onMissionCreated();
+      setDroneId(null);
     } catch (error) {
       console.error(error);
     } finally {
@@ -128,6 +132,37 @@ export const MissionPlanningForm: React.FC<MissionPlanningFormProps> = ({
             <option value="3">pilot2@flyby.com</option>
           </select>
         </div>
+      </div>
+
+            {/* 2.5. Assign Drone (Optional) + Admin Approval Notice */}
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#9ca3af]">
+          Assign Drone (Optional)
+        </label>
+        <select
+          value={droneId || ""}
+          onChange={(e) =>
+            setDroneId(e.target.value ? Number(e.target.value) : null)
+          }
+          className="w-full bg-[#12141a] px-2.5 py-1.5 rounded-lg border border-[#2e333d] focus:border-[#2b85e4] text-[#d1d5db] outline-none transition cursor-pointer"
+        >
+          <option value="">-- Let Pilot Decide at Depot (Admin Approved) --</option>
+          {drones.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name} ({d.serial_number}) • {d.status} • {d.battery_level}%
+            </option>
+          ))}
+        </select>
+
+        {!droneId ? (
+          <div className="text-[10px] text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded-md px-2 py-1">
+            ℹ️ By leaving this unassigned, you approve the Pilot to choose and pick up a suitable drone from the depot.
+          </div>
+        ) : (
+          <div className="text-[10px] text-blue-300/90 bg-blue-500/10 border border-blue-500/30 rounded-md px-2 py-1">
+            ℹ️ Pilot will be instructed to pick up this drone. If unavailable at pickup time, Pilot may pick an alternative after notifying Admin.
+          </div>
+        )}
       </div>
 
       {/* 3. Flight Altitude Control with DJI-style Stepper Buttons (-10 / +10) */}

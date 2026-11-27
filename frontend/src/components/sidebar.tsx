@@ -123,7 +123,7 @@ export const Sidebar: React.FC = () => {
 
     // B. PLANNING MODE: Admin creates a new route
     if (user?.role === "ADMIN") {
-      return <MissionPlanningForm onMissionCreated={fetchMissions} />;
+      return <MissionPlanningForm drones={drones} onMissionCreated={fetchMissions} />;
     }
 
     // C. Pilot View-Only (When no mission is selected yet)

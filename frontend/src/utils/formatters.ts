@@ -30,7 +30,12 @@ export const formatDuration = (seconds: number): string => {
 }
 
 export const formatDateTime = (isoString: string): string => {
-    const date = new Date(isoString)
+    // Append 'Z' if the backend ISO timestamp lacks a timezone suffix so JS converts UTC -> Local Time
+    const normalizedIso =
+        isoString.endsWith("Z") || isoString.includes("+")
+            ? isoString
+            : `${isoString}Z`;
+    const date = new Date(normalizedIso);
 
     if(Number.isNaN(date.getTime())){
         return "N/A";
@@ -43,7 +48,6 @@ export const formatDateTime = (isoString: string): string => {
 
     return `${month}-${day}-${year} ${hours}:${minutes}`;
 }
-
 export const formatAltitudeMode = (mode: string): string => {
     if(mode === "RELATIVE_TO_TAKEOFF"){
         return "Takeoff";

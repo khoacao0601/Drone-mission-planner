@@ -4,6 +4,8 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from crud import crud_drone
+from models.user import User
+from models.mission import Mission
 
 def get_all_drones(db: Session):
     return crud_drone.get_all_drones(db)
@@ -17,3 +19,38 @@ def get_drone_details(db: Session, drone_id: int):
         )
     return drone
 
+def pickup_drone(db: Session, drone_id: int, current_user: User):
+    drone = get_drone_details(db, drone_id=drone_id)
+    if drone.status != "AVAILABLE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Drone is not available for pickup!"
+        )
+    return crud_drone.pickup_drone(db, drone, operator_id=current_user.id)
+
+def release_drone(db: Session, drone_id: int, current_user: User):
+    drone = get_drone_details(db, drone_id=drone_id)
+    if drone.status != "IN_MISSION":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Drone is not currently checked out!"
+        )
+    if current_user.role != "ADMIN" and drone.current_operator_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only release a drone that you picked up!"
+        )
+
+    # Safety Interlock: Prevent releasing a drone while it is actively flying an IN_PROGRESS mission
+    active_mission = (
+        db.query(Mission)
+        .filter(Mission.drone_id == drone_id, Mission.status == "IN_PROGRESS")
+        .first()
+    )
+    if active_mission:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot release drone while flying mission '{active_mission.name}' (IN_PROGRESS)!"
+        )
+
+    return crud_drone.release_drone(db, drone, operator_id=current_user.id)

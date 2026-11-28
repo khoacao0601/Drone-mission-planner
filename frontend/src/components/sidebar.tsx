@@ -21,7 +21,6 @@ export const Sidebar: React.FC = () => {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [drones, setDrones] = useState<Drone[]>([]);
-  const [activeTab, setActiveTab] = useState<"MISSIONS" | "FLEET">("MISSIONS");
 
   const {
     waypoints,
@@ -54,6 +53,12 @@ export const Sidebar: React.FC = () => {
     activeType === "AREA" && activeWaypoints.length >= 3
       ? calculatePolygonArea(activeWaypoints)
       : 0;
+  let formattedArea = "0.0 ha";
+  if (liveArea >= 1000) {
+    formattedArea = `${(liveArea / 10000).toFixed(1)} ha`;
+  } else if (liveArea > 0) {
+    formattedArea = `${Math.round(liveArea)} m²`;
+  }
 
   // 1. Fetch missions list from backend
   const fetchMissions = () => {
@@ -84,9 +89,17 @@ export const Sidebar: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (id: number, newStatus: MissionStatus) => {
+  const handleStatusChange = async (
+    id: number,
+    newStatus: MissionStatus,
+    droneId?: number,
+  ) => {
     try {
-      const updated = await missionAPI.updateMissionStatus(id, newStatus);
+      const updated = await missionAPI.updateMissionStatus(
+        id,
+        newStatus,
+        droneId,
+      );
       setSelectedMission(updated);
       fetchMissions();
     } catch (error) {
@@ -100,8 +113,9 @@ export const Sidebar: React.FC = () => {
     if (selectedMission) {
       return (
         <MissionDetailsCard
-          onStatusChange={(id, status) => {
-            void handleStatusChange(id, status);
+          drones={drones}
+          onStatusChange={(id, status, droneId) => {
+            void handleStatusChange(id, status, droneId);
           }}
           mission={selectedMission}
           isAdmin={user?.role === "ADMIN"}
@@ -109,7 +123,7 @@ export const Sidebar: React.FC = () => {
             setSelectedMission(null);
             clearWaypoint();
           }}
-        ></MissionDetailsCard>
+        />
       );
     }
 
@@ -141,7 +155,7 @@ export const Sidebar: React.FC = () => {
       <div className="absolute top-4 left-4 z-10">
         <button
           onClick={() => setIsCollapsed(false)}
-          className="flex items-center gap-2 bg-[#1c1f26]/95 hover:bg-[#232730] text-[#e5e7eb] px-3.5 py-2 rounded-xl border border-[#2e333d] backdrop-blur-md shadow-xl transition-all cursor-pointer"
+          className="flex items-center gap-2 bg-[#12151c]/85 hover:bg-[#1b202a] text-[#e5e7eb] px-3.5 py-2 rounded-xl border border-[#252a36] backdrop-blur-xl shadow-xl transition-all cursor-pointer"
           title="Expand Mission Panel"
         >
           <svg
@@ -167,172 +181,69 @@ export const Sidebar: React.FC = () => {
   }
 
   return (
-    <aside className="absolute top-3 left-3 bottom-3 z-10 w-96 bg-[#1c1f26]/95 text-[#e5e7eb] rounded-xl border border-[#2e333d] backdrop-blur-md shadow-2xl flex flex-col text-xs select-none transition-all overflow-hidden">
-      {/* 1. FIXED TOP HEADER & LIVE TELEMETRY BAR */}
-      <div className="p-4 pb-3 border-b border-[#2e333d] space-y-3 shrink-0">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#2b85e4]" />
-            <h2 className="font-semibold text-xs uppercase tracking-wider text-white">
-              Mission Control
-            </h2>
-          </div>
-          <button
-            onClick={() => setIsCollapsed(true)}
-            className="text-[#9ca3af] hover:text-white p-1 rounded hover:bg-[#2a2e39] transition cursor-pointer"
-            title="Collapse Panel"
+    <aside className="absolute top-4 left-4 max-h-[calc(100vh-5.5rem)] z-10 w-80 md:w-[340px] bg-[#0d111a]/65 text-[#e5e7eb] rounded-2xl border border-white/15 backdrop-blur-md shadow-2xl flex flex-col text-xs select-none transition-all overflow-hidden">
+      {/* 1. FIXED TOP TELEMETRY STRIP */}
+      <div className="px-5 py-4 border-b border-white/15 shrink-0 relative">
+        <button
+          onClick={() => setIsCollapsed(true)}
+          className="absolute top-3 right-3 text-slate-200 hover:text-white p-1 rounded hover:bg-white/10 transition cursor-pointer"
+          title="Collapse Panel"
+        >
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
 
-        {/* Live 4-Metric Telemetry Strip (DJI FlightHub 2 Style) */}
-        <div className="grid grid-cols-4 gap-1.5 bg-[#12141a] p-2.5 rounded-lg border border-[#282c35] text-center">
-          <div>
-            <div className="text-[9px] text-[#9ca3af] uppercase">Area</div>
-            <div className="font-mono font-semibold text-white text-[11px] mt-0.5">
-              {liveArea > 0
-                ? `${Math.round(liveArea).toLocaleString()} m²`
-                : "N/A"}
+        <div className="grid grid-cols-3 text-left pr-5">
+          <div className="pr-3">
+            <div className="text-[11px] font-medium text-slate-200">
+              Distance
             </div>
-          </div>
-          <div className="border-l border-[#232730]">
-            <div className="text-[9px] text-[#9ca3af] uppercase">Distance</div>
-            <div className="font-mono font-semibold text-white text-[11px] mt-0.5">
+            <div className="font-semibold text-white text-sm md:text-base tabular-nums whitespace-nowrap mt-0.5">
               {formatDistance(liveDistance)}
             </div>
           </div>
-          <div className="border-l border-[#232730]">
-            <div className="text-[9px] text-[#9ca3af] uppercase">Est. Time</div>
-            <div className="font-mono font-semibold text-[#38bdf8] text-[11px] mt-0.5">
+          <div className="px-3 border-l border-white/15">
+            <div className="text-[11px] font-medium text-slate-200">
+              Est. Time
+            </div>
+            <div className="font-semibold text-white text-sm md:text-base tabular-nums whitespace-nowrap mt-0.5">
               {formatDuration(liveDuration)}
             </div>
           </div>
-          <div className="border-l border-[#232730]">
-            <div className="text-[9px] text-[#9ca3af] uppercase">Waypoints</div>
-            <div className="font-mono font-semibold text-[#60a5fa] text-[11px] mt-0.5">
-              {activeWaypoints.length} pts
+          <div className="pl-3 border-l border-white/15">
+            <div className="text-[11px] font-medium text-slate-200">Area</div>
+            <div className="font-semibold text-white text-sm md:text-base tabular-nums whitespace-nowrap mt-0.5">
+              {formattedArea}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. SCROLLABLE BODY: Active Tab Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Navigation Tabs: Missions vs Fleet Inventory */}
-        <div className="grid grid-cols-2 gap-1.5 bg-[#12141a] p-1 rounded-lg border border-[#282c35]">
-          <button
-            type="button"
-            onClick={() => setActiveTab("MISSIONS")}
-            className={`py-1.5 px-2 rounded-md text-[11px] font-semibold transition cursor-pointer ${
-              activeTab === "MISSIONS"
-                ? "bg-[#2b85e4] text-white shadow-sm"
-                : "text-[#9ca3af] hover:text-white"
-            }`}
-          >
-            Missions ({missions.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("FLEET")}
-            className={`py-1.5 px-2 rounded-md text-[11px] font-semibold transition cursor-pointer ${
-              activeTab === "FLEET"
-                ? "bg-[#2b85e4] text-white shadow-sm"
-                : "text-[#9ca3af] hover:text-white"
-            }`}
-          >
-            Fleet Inventory ({drones.length})
-          </button>
-        </div>
-        {activeTab === "MISSIONS" ? (
-          <>
-            {renderActiveSection()}
+      {/* 2. SCROLLABLE BODY: Active Section + Mission List */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        {renderActiveSection()}
 
-            <MissionList
-              missions={missions}
-              selectedMissionId={selectedMission?.id}
-              isAdmin={user?.role === "ADMIN"}
-              onSelectMission={setSelectedMission}
-              onDeleteMission={(id) => {
-                void handleDelete(id);
-              }}
-            />
-          </>
-        ) : (
-          <div className="space-y-2.5">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider">
-                Provisioned Hardware ({drones.length})
-              </span>
-              <span className="text-[10px] text-[#6b7280]">OEM Managed</span>
-            </div>
-
-            {drones.map((d) => (
-              <div
-                key={d.id}
-                className="p-3 rounded-lg bg-[#14171d] border border-[#282c35] space-y-2"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-semibold text-white text-xs">
-                      {d.name}
-                    </div>
-                    <div className="text-[10px] text-[#9ca3af]">
-                      {d.model} •{" "}
-                      <span className="font-mono">{d.serial_number}</span>
-                    </div>
-                  </div>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
-                      d.status === "AVAILABLE"
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                        : d.status === "IN_MISSION"
-                          ? "bg-sky-500/10 text-sky-400 border-sky-500/30"
-                          : "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                    }`}
-                  >
-                    {d.status}
-                  </span>
-                </div>
-
-                {/* Battery Bar */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px]">
-                    <span className="text-[#9ca3af]">Battery Level</span>
-                    <span className="font-mono font-semibold text-white">
-                      {d.battery_level}%
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 bg-[#232730] rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${
-                        d.battery_level > 60
-                          ? "bg-emerald-500"
-                          : d.battery_level > 30
-                            ? "bg-amber-500"
-                            : "bg-red-500"
-                      }`}
-                      style={{ width: `${d.battery_level}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <MissionList
+          missions={missions}
+          selectedMissionId={selectedMission?.id}
+          isAdmin={user?.role === "ADMIN"}
+          onSelectMission={setSelectedMission}
+          onDeleteMission={(id) => {
+            void handleDelete(id);
+          }}
+        />
       </div>
     </aside>
   );

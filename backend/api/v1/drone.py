@@ -28,3 +28,19 @@ def get_drone_detail(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
     return drone_service.get_drone_details(db=db, drone_id=drone_id)
+
+@router.post("/{drone_id}/pickup", response_model=DroneResponse)
+def pickup_drone(
+    drone_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    return drone_service.pickup_drone(db=db, drone_id=drone_id, current_user=current_user)
+
+@router.post("/{drone_id}/release", response_model=DroneResponse)
+def release_drone(
+    drone_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    return drone_service.release_drone(db=db, drone_id=drone_id, current_user=current_user)

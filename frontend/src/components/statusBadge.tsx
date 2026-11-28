@@ -4,10 +4,10 @@ import React from "react";
 import type { MissionStatus } from "../types/missions";
 
 const STATUS_STYLES: Record<string, string> = {
-    'ASSIGNED': 'bg-sky-950/80 text-sky-300 border-sky-500/50',
-    'IN_PROGRESS': 'bg-amber-950/80 text-amber-300 border-amber-500/50',
-    'COMPLETED': 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50',
-    'CANCELLED': 'bg-red-950/80 text-red-300 border-red-500/50'
+    'ASSIGNED': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+    'IN_PROGRESS': 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+    'COMPLETED': 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+    'CANCELLED': 'bg-red-500/20 text-red-300 border-red-500/30'
 }
 
 export const StatusBadge: React.FC<{status: MissionStatus}> = ({status}) => {

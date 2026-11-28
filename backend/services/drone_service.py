@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from crud import crud_drone
 from models.user import User
+from models.mission import Mission
 
 def get_all_drones(db: Session):
     return crud_drone.get_all_drones(db)
@@ -39,5 +40,17 @@ def release_drone(db: Session, drone_id: int, current_user: User):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only release a drone that you picked up!"
         )
-    return crud_drone.release_drone(db, drone, operator_id=current_user.id)
 
+    # Safety Interlock: Prevent releasing a drone while it is actively flying an IN_PROGRESS mission
+    active_mission = (
+        db.query(Mission)
+        .filter(Mission.drone_id == drone_id, Mission.status == "IN_PROGRESS")
+        .first()
+    )
+    if active_mission:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot release drone while flying mission '{active_mission.name}' (IN_PROGRESS)!"
+        )
+
+    return crud_drone.release_drone(db, drone, operator_id=current_user.id)

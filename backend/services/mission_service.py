@@ -76,11 +76,11 @@ def validate_and_assign_drone(db: Session, mission, target_drone_id: int | None,
         )
 
     if mission.drone and mission.drone_id != target_drone_id:
-        now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+        now_iso = datetime.now(timezone.utc).isoformat()
         old_info = f"{mission.drone.name} ({mission.drone.serial_number})"
         new_info = f"{drone.name} ({drone.serial_number})"
         mission.description = (
-            f"Assigned Drone: {old_info} (Not available at {now_str}) | "
+            f"Assigned Drone: {old_info} (Not available at {now_iso}) | "
             f"Alternative Drone: {new_info}"
         )
 
